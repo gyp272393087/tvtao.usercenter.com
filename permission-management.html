@@ -489,11 +489,14 @@
                     <label>ID</label>
                     <input type="text" id="searchId" placeholder="请输入ID">
                 </div>
-                <div class="search-item">
+                <div class="search-item" style="max-width: 350px;">
                     <label>权限域</label>
-                    <select id="searchDomain">
-                        <option value="">全部</option>
-                    </select>
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                        <select id="searchDomain" style="flex: 1;">
+                            <option value="">全部</option>
+                        </select>
+                        <button type="button" id="viewDomainTreeBtn" class="btn btn-primary" onclick="handleViewDomainTree()" style="display: none; padding: 8px 12px; font-size: 12px; white-space: nowrap; flex-shrink: 0;">域权限结构查看</button>
+                    </div>
                 </div>
                 <div class="search-item">
                     <label>权限名称</label>
@@ -606,6 +609,24 @@
                     <button type="submit" class="btn btn-primary">确定</button>
                 </div>
             </form>
+        </div>
+    </div>
+    
+    <!-- 查看域树形结构弹窗 -->
+    <div id="viewDomainTreeModal" class="modal">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-header">
+                <div class="modal-title">权限结构</div>
+                <button type="button" class="modal-close" onclick="closeViewDomainTreeModal()">&times;</button>
+            </div>
+            <div class="form-item">
+                <div class="permission-tree" id="viewDomainTreeContainer" style="max-height: 500px;">
+                    <!-- 树形结构将通过JavaScript动态生成 -->
+                </div>
+            </div>
+            <div class="form-buttons">
+                <button type="button" class="btn btn-primary" onclick="closeViewDomainTreeModal()">关闭</button>
+            </div>
         </div>
     </div>
     
@@ -808,6 +829,7 @@
         // 初始化域下拉框
         function initDomainSelect() {
             const domainSelect = document.getElementById('searchDomain');
+            const viewDomainTreeBtn = document.getElementById('viewDomainTreeBtn');
             const domains = [...new Set(allPermissions.map(p => p.domain))].sort();
             
             domains.forEach(domain => {
@@ -815,6 +837,15 @@
                 option.value = domain;
                 option.textContent = domain;
                 domainSelect.appendChild(option);
+            });
+            
+            // 监听域选择变化，显示/隐藏查看树按钮
+            domainSelect.addEventListener('change', function() {
+                if (this.value && this.value !== '') {
+                    viewDomainTreeBtn.style.display = 'block';
+                } else {
+                    viewDomainTreeBtn.style.display = 'none';
+                }
             });
         }
         
@@ -1617,6 +1648,89 @@
                 handleSearch();
             }
         });
+        
+        // 渲染只读树形结构（用于查看域树形结构）
+        function renderReadOnlyTreeNode(node, level = 0) {
+            const hasChildren = node.children && node.children.length > 0;
+            const nodeDiv = document.createElement('div');
+            nodeDiv.className = 'tree-node' + (hasChildren ? '' : ' leaf');
+            nodeDiv.dataset.nodeId = node.id;
+            
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'tree-node-content';
+            contentDiv.style.cursor = 'default';
+            
+            // 展开/折叠按钮
+            const toggleSpan = document.createElement('span');
+            toggleSpan.className = 'tree-toggle';
+            if (hasChildren) {
+                toggleSpan.textContent = '▶';
+                toggleSpan.onclick = function(e) {
+                    e.stopPropagation();
+                    toggleTreeNode(nodeDiv);
+                };
+            }
+            
+            // 标签（不包含单选按钮）
+            const label = document.createElement('span');
+            label.className = 'tree-label';
+            label.textContent = `${node.name} (${node.code})`;
+            
+            contentDiv.appendChild(toggleSpan);
+            contentDiv.appendChild(label);
+            
+            nodeDiv.appendChild(contentDiv);
+            
+            // 子节点
+            if (hasChildren) {
+                const childrenDiv = document.createElement('div');
+                childrenDiv.className = 'tree-children';
+                node.children.forEach(child => {
+                    childrenDiv.appendChild(renderReadOnlyTreeNode(child, level + 1));
+                });
+                nodeDiv.appendChild(childrenDiv);
+            }
+            
+            return nodeDiv;
+        }
+        
+        // 查看域树形结构
+        function handleViewDomainTree() {
+            const domain = document.getElementById('searchDomain').value;
+            if (!domain || domain === '') {
+                alert('请先选择权限域');
+                return;
+            }
+            
+            const modal = document.getElementById('viewDomainTreeModal');
+            const modalTitle = modal.querySelector('.modal-title');
+            const treeContainer = document.getElementById('viewDomainTreeContainer');
+            
+            // 设置弹窗标题为动态的域名称
+            modalTitle.innerHTML = `<span style="color: #1890ff; font-weight: 600; font-size: 18px;">${domain}</span> 域权限结构`;
+            
+            // 清空容器
+            treeContainer.innerHTML = '';
+            
+            // 构建该域的权限树
+            const tree = buildPermissionTree(domain);
+            
+            if (tree.length > 0) {
+                tree.forEach(rootNode => {
+                    treeContainer.appendChild(renderReadOnlyTreeNode(rootNode, 0));
+                });
+            } else {
+                treeContainer.innerHTML = '<div style="padding: 20px; text-align: center; color: #999;">该域下暂无权限数据</div>';
+            }
+            
+            modal.classList.add('show');
+        }
+        
+        // 关闭查看域树形结构弹窗
+        function closeViewDomainTreeModal() {
+            const modal = document.getElementById('viewDomainTreeModal');
+            modal.classList.remove('show');
+        }
         
         // 初始化渲染
         initDomainSelect();

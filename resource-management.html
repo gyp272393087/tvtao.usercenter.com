@@ -489,11 +489,14 @@
                     <label>ID</label>
                     <input type="text" id="searchId" placeholder="请输入ID">
                 </div>
-                <div class="search-item">
+                <div class="search-item" style="max-width: 350px;">
                     <label>资源域</label>
-                    <select id="searchDomain">
-                        <option value="">全部</option>
-                    </select>
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                        <select id="searchDomain" style="flex: 1;">
+                            <option value="">全部</option>
+                        </select>
+                        <button type="button" id="viewDomainTreeBtn" class="btn btn-primary" onclick="handleViewDomainTree()" style="display: none; padding: 8px 12px; font-size: 12px; white-space: nowrap; flex-shrink: 0;">域资源结构查看</button>
+                    </div>
                 </div>
                 <div class="search-item">
                     <label>资源名称</label>
@@ -609,15 +612,33 @@
         </div>
     </div>
     
+    <!-- 查看域树形结构弹窗 -->
+    <div id="viewDomainTreeModal" class="modal">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-header">
+                <div class="modal-title">资源结构</div>
+                <button type="button" class="modal-close" onclick="closeViewDomainTreeModal()">&times;</button>
+            </div>
+            <div class="form-item">
+                <div class="permission-tree" id="viewDomainTreeContainer" style="max-height: 500px;">
+                    <!-- 树形结构将通过JavaScript动态生成 -->
+                </div>
+            </div>
+            <div class="form-buttons">
+                <button type="button" class="btn btn-primary" onclick="closeViewDomainTreeModal()">关闭</button>
+            </div>
+        </div>
+    </div>
+    
     <script>
         // 示例数据
         let allPermissions = [
-            // 用户管理域 - 形成层级关系
+            // 数据分析域 - 形成层级关系
             {
                 id: '1',
-                domain: '用户管理',
-                name: '用户管理',
-                code: 'user:manage',
+                domain: '数据分析',
+                name: '数据分析',
+                code: 'data:analysis',
                 creator: '张三',
                 createTime: '2024-01-10 10:00:00',
                 modifier: '张三',
@@ -625,9 +646,9 @@
             },
             {
                 id: '2',
-                domain: '用户管理',
-                name: '用户查看',
-                code: 'user:view',
+                domain: '数据分析',
+                name: '客户访问统计',
+                code: 'data:customer:visit',
                 parentId: '1',
                 creator: '张三',
                 createTime: '2024-01-15 10:30:00',
@@ -636,9 +657,9 @@
             },
             {
                 id: '3',
-                domain: '用户管理',
-                name: '用户编辑',
-                code: 'user:edit',
+                domain: '数据分析',
+                name: '销售数据分析',
+                code: 'data:sales:analysis',
                 parentId: '1',
                 creator: '李四',
                 createTime: '2024-01-16 14:20:00',
@@ -647,9 +668,9 @@
             },
             {
                 id: '4',
-                domain: '用户管理',
-                name: '用户删除',
-                code: 'user:delete',
+                domain: '数据分析',
+                name: '用户行为分析',
+                code: 'data:user:behavior',
                 parentId: '1',
                 creator: '李四',
                 createTime: '2024-01-17 09:00:00',
@@ -658,9 +679,9 @@
             },
             {
                 id: '5',
-                domain: '用户管理',
-                name: '用户列表',
-                code: 'user:list',
+                domain: '数据分析',
+                name: '客户访问日报',
+                code: 'data:customer:visit:daily',
                 parentId: '2',
                 creator: '张三',
                 createTime: '2024-01-18 10:00:00',
@@ -669,9 +690,9 @@
             },
             {
                 id: '6',
-                domain: '用户管理',
-                name: '用户详情',
-                code: 'user:detail',
+                domain: '数据分析',
+                name: '客户访问周报',
+                code: 'data:customer:visit:weekly',
                 parentId: '2',
                 creator: '张三',
                 createTime: '2024-01-19 10:00:00',
@@ -680,9 +701,9 @@
             },
             {
                 id: '7',
-                domain: '用户管理',
-                name: '用户新增',
-                code: 'user:create',
+                domain: '数据分析',
+                name: '销售数据月报',
+                code: 'data:sales:monthly',
                 parentId: '3',
                 creator: '李四',
                 createTime: '2024-01-20 10:00:00',
@@ -691,21 +712,21 @@
             },
             {
                 id: '8',
-                domain: '用户管理',
-                name: '用户更新',
-                code: 'user:update',
+                domain: '数据分析',
+                name: '销售数据年报',
+                code: 'data:sales:yearly',
                 parentId: '3',
                 creator: '李四',
                 createTime: '2024-01-21 10:00:00',
                 modifier: '李四',
                 modifyTime: '2024-01-21 10:00:00'
             },
-            // 角色管理域
+            // 报表管理域
             {
                 id: '9',
-                domain: '角色管理',
-                name: '角色查看',
-                code: 'role:view',
+                domain: '报表管理',
+                name: '财务报表',
+                code: 'report:financial',
                 creator: '张三',
                 createTime: '2024-01-17 11:00:00',
                 modifier: '张三',
@@ -713,20 +734,20 @@
             },
             {
                 id: '10',
-                domain: '角色管理',
-                name: '角色编辑',
-                code: 'role:edit',
+                domain: '报表管理',
+                name: '运营报表',
+                code: 'report:operation',
                 creator: '李四',
                 createTime: '2024-01-18 15:45:00',
                 modifier: '李四',
                 modifyTime: '2024-01-18 15:45:00'
             },
-            // 用户管理域 - 平级资源（与"用户管理"平级）
+            // 数据分析域 - 平级资源（与"数据分析"平级）
             {
                 id: '13',
-                domain: '用户管理',
-                name: '用户配置',
-                code: 'user:config',
+                domain: '数据分析',
+                name: '数据导出',
+                code: 'data:export',
                 creator: '张三',
                 createTime: '2024-01-22 10:00:00',
                 modifier: '张三',
@@ -734,20 +755,20 @@
             },
             {
                 id: '14',
-                domain: '用户管理',
-                name: '用户统计',
-                code: 'user:statistics',
+                domain: '数据分析',
+                name: '数据可视化',
+                code: 'data:visualization',
                 creator: '李四',
                 createTime: '2024-01-23 14:30:00',
                 modifier: '李四',
                 modifyTime: '2024-01-23 14:30:00'
             },
-            // 资源管理域
+            // 内容管理域
             {
                 id: '11',
-                domain: '资源管理',
-                name: '资源查看',
-                code: 'permission:view',
+                domain: '内容管理',
+                name: '文章管理',
+                code: 'content:article',
                 creator: '王五',
                 createTime: '2024-01-19 09:30:00',
                 modifier: '王五',
@@ -755,9 +776,9 @@
             },
             {
                 id: '12',
-                domain: '资源管理',
-                name: '资源编辑',
-                code: 'permission:edit',
+                domain: '内容管理',
+                name: '视频管理',
+                code: 'content:video',
                 creator: '张三',
                 createTime: '2024-01-20 16:20:00',
                 modifier: '李四',
@@ -808,6 +829,7 @@
         // 初始化域下拉框
         function initDomainSelect() {
             const domainSelect = document.getElementById('searchDomain');
+            const viewDomainTreeBtn = document.getElementById('viewDomainTreeBtn');
             const domains = [...new Set(allPermissions.map(p => p.domain))].sort();
             
             domains.forEach(domain => {
@@ -815,6 +837,15 @@
                 option.value = domain;
                 option.textContent = domain;
                 domainSelect.appendChild(option);
+            });
+            
+            // 监听域选择变化，显示/隐藏查看树按钮
+            domainSelect.addEventListener('change', function() {
+                if (this.value && this.value !== '') {
+                    viewDomainTreeBtn.style.display = 'block';
+                } else {
+                    viewDomainTreeBtn.style.display = 'none';
+                }
             });
         }
         
@@ -1255,7 +1286,7 @@
         // 模板下载
         function handleDownloadTemplate() {
             // 创建CSV模板内容
-            const csvContent = '域,资源名称,资源码\n用户管理,用户查看,user:view\n角色管理,角色编辑,role:edit';
+            const csvContent = '域,资源名称,资源码\n数据分析,客户访问统计,data:customer:visit\n报表管理,财务报表,report:financial';
             
             // 创建Blob对象
             const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
@@ -1617,6 +1648,89 @@
                 handleSearch();
             }
         });
+        
+        // 渲染只读树形结构（用于查看域树形结构）
+        function renderReadOnlyTreeNode(node, level = 0) {
+            const hasChildren = node.children && node.children.length > 0;
+            const nodeDiv = document.createElement('div');
+            nodeDiv.className = 'tree-node' + (hasChildren ? '' : ' leaf');
+            nodeDiv.dataset.nodeId = node.id;
+            
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'tree-node-content';
+            contentDiv.style.cursor = 'default';
+            
+            // 展开/折叠按钮
+            const toggleSpan = document.createElement('span');
+            toggleSpan.className = 'tree-toggle';
+            if (hasChildren) {
+                toggleSpan.textContent = '▶';
+                toggleSpan.onclick = function(e) {
+                    e.stopPropagation();
+                    toggleTreeNode(nodeDiv);
+                };
+            }
+            
+            // 标签（不包含单选按钮）
+            const label = document.createElement('span');
+            label.className = 'tree-label';
+            label.textContent = `${node.name} (${node.code})`;
+            
+            contentDiv.appendChild(toggleSpan);
+            contentDiv.appendChild(label);
+            
+            nodeDiv.appendChild(contentDiv);
+            
+            // 子节点
+            if (hasChildren) {
+                const childrenDiv = document.createElement('div');
+                childrenDiv.className = 'tree-children';
+                node.children.forEach(child => {
+                    childrenDiv.appendChild(renderReadOnlyTreeNode(child, level + 1));
+                });
+                nodeDiv.appendChild(childrenDiv);
+            }
+            
+            return nodeDiv;
+        }
+        
+        // 查看域树形结构
+        function handleViewDomainTree() {
+            const domain = document.getElementById('searchDomain').value;
+            if (!domain || domain === '') {
+                alert('请先选择资源域');
+                return;
+            }
+            
+            const modal = document.getElementById('viewDomainTreeModal');
+            const modalTitle = modal.querySelector('.modal-title');
+            const treeContainer = document.getElementById('viewDomainTreeContainer');
+            
+            // 设置弹窗标题为动态的域名称
+            modalTitle.innerHTML = `<span style="color: #1890ff; font-weight: 600; font-size: 18px;">${domain}</span> 域资源结构`;
+            
+            // 清空容器
+            treeContainer.innerHTML = '';
+            
+            // 构建该域的资源树
+            const tree = buildPermissionTree(domain);
+            
+            if (tree.length > 0) {
+                tree.forEach(rootNode => {
+                    treeContainer.appendChild(renderReadOnlyTreeNode(rootNode, 0));
+                });
+            } else {
+                treeContainer.innerHTML = '<div style="padding: 20px; text-align: center; color: #999;">该域下暂无资源数据</div>';
+            }
+            
+            modal.classList.add('show');
+        }
+        
+        // 关闭查看域树形结构弹窗
+        function closeViewDomainTreeModal() {
+            const modal = document.getElementById('viewDomainTreeModal');
+            modal.classList.remove('show');
+        }
         
         // 初始化渲染
         initDomainSelect();
