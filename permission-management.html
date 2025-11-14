@@ -552,6 +552,7 @@
                 <button type="button" class="modal-close" onclick="closeNewModal()">&times;</button>
             </div>
             <form class="modal-form" id="newPermissionForm" onsubmit="handleSubmitNew(event)">
+                <input type="hidden" id="editingPermissionId" value="">
                 <div class="form-item">
                     <label>权限域 <span style="color: red;">*</span></label>
                     <select id="newDomain" required>
@@ -817,8 +818,6 @@
                     <td>
                         <div class="operation-buttons">
                             <button type="button" class="btn-action btn-edit" onclick="handleEdit('${permission.id}')">修改</button>
-                            <button type="button" class="btn-action btn-copy" onclick="handleCopy('${permission.id}')">复制</button>
-                            <button type="button" class="btn-action btn-link" onclick="handleLinkParent('${permission.id}')">关联父权限</button>
                             <button type="button" class="btn-action btn-delete" onclick="handleDelete('${permission.id}')">删除</button>
                         </div>
                     </td>
@@ -882,38 +881,49 @@
         // 修改功能
         function handleEdit(id) {
             const permission = allPermissions.find(p => p.id === id);
-            if (permission) {
-                alert(`修改权限：${permission.name} (ID: ${id})`);
-                // 这里可以打开编辑弹窗或跳转到编辑页面
+            if (!permission) return;
+            
+            const modal = document.getElementById('newModal');
+            const modalTitle = modal.querySelector('.modal-title');
+            const newDomainSelect = document.getElementById('newDomain');
+            const editingIdInput = document.getElementById('editingPermissionId');
+            
+            // 设置编辑模式
+            editingIdInput.value = id;
+            modalTitle.textContent = '修改权限';
+            
+            // 填充域下拉框
+            newDomainSelect.innerHTML = '<option value="">请选择权限域</option>';
+            const domains = [...new Set(allPermissions.map(p => p.domain))].sort();
+            domains.forEach(domain => {
+                const option = document.createElement('option');
+                option.value = domain;
+                option.textContent = domain;
+                if (domain === permission.domain) {
+                    option.selected = true;
+                }
+                newDomainSelect.appendChild(option);
+            });
+            
+            // 禁用域下拉框
+            newDomainSelect.disabled = true;
+            
+            // 回填数据
+            document.getElementById('newName').value = permission.name;
+            document.getElementById('newCode').value = permission.code;
+            document.getElementById('selectedParentId').value = permission.parentId || '';
+            
+            // 更新权限树（传入当前权限ID，用于禁用自身和子节点）
+            updatePermissionTree(permission.domain, id);
+            
+            // 如果有父权限，选中它
+            if (permission.parentId) {
+                setTimeout(() => {
+                    selectTreeNode(permission.parentId, 'parentPermissionTree');
+                }, 100);
             }
-        }
-        
-        // 复制功能
-        function handleCopy(id) {
-            const permission = allPermissions.find(p => p.id === id);
-            if (permission) {
-                const now = new Date();
-                const year = now.getFullYear();
-                const month = String(now.getMonth() + 1).padStart(2, '0');
-                const day = String(now.getDate()).padStart(2, '0');
-                const hours = String(now.getHours()).padStart(2, '0');
-                const minutes = String(now.getMinutes()).padStart(2, '0');
-                const seconds = String(now.getSeconds()).padStart(2, '0');
-                const timeStr = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
-                
-                const newPermission = {
-                    ...permission,
-                    id: String(allPermissions.length + 1),
-                    creator: '当前用户',
-                    createTime: timeStr,
-                    modifier: '当前用户',
-                    modifyTime: timeStr
-                };
-                allPermissions.push(newPermission);
-                filteredPermissions = [...allPermissions];
-                renderTable(filteredPermissions);
-                alert(`已复制权限：${permission.name}`);
-            }
+            
+            modal.classList.add('show');
         }
         
         // 删除功能
@@ -962,7 +972,7 @@
         }
         
         // 更新权限树显示
-        function updatePermissionTree(domain) {
+        function updatePermissionTree(domain, excludeId = null) {
             const treeContainer = document.getElementById('parentPermissionTree');
             treeContainer.innerHTML = '';
             
@@ -975,7 +985,12 @@
             const tree = buildPermissionTree(domain);
             if (tree.length > 0) {
                 tree.forEach(rootNode => {
-                    treeContainer.appendChild(renderTreeNode(rootNode, 0, 'parentPermissionTree'));
+                    // 如果是在编辑模式，需要禁用自身节点和子节点
+                    if (excludeId) {
+                        treeContainer.appendChild(renderTreeNodeWithDisabledCheck(rootNode, 0, 'parentPermissionTree', excludeId, allPermissions));
+                    } else {
+                        treeContainer.appendChild(renderTreeNode(rootNode, 0, 'parentPermissionTree'));
+                    }
                 });
             } else {
                 treeContainer.innerHTML = '<div style="padding: 20px; text-align: center; color: #999;">该域下暂无权限数据</div>';
@@ -1119,11 +1134,20 @@
         // 新建权限
         function handleNew() {
             const modal = document.getElementById('newModal');
+            const modalTitle = modal.querySelector('.modal-title');
             const newDomainSelect = document.getElementById('newDomain');
+            const editingIdInput = document.getElementById('editingPermissionId');
+            
+            // 设置为新建模式
+            editingIdInput.value = '';
+            modalTitle.textContent = '新建权限';
             
             // 清空表单
             document.getElementById('newPermissionForm').reset();
             document.getElementById('selectedParentId').value = '';
+            
+            // 启用域下拉框
+            newDomainSelect.disabled = false;
             
             // 填充域下拉框
             newDomainSelect.innerHTML = '<option value="">请选择权限域</option>';
@@ -1150,14 +1174,18 @@
         // 关闭新建弹窗
         function closeNewModal() {
             const modal = document.getElementById('newModal');
+            const newDomainSelect = document.getElementById('newDomain');
             modal.classList.remove('show');
             document.getElementById('newPermissionForm').reset();
+            document.getElementById('editingPermissionId').value = '';
+            newDomainSelect.disabled = false;
         }
         
-        // 提交新建权限
+        // 提交新建/修改权限
         function handleSubmitNew(event) {
             event.preventDefault();
             
+            const editingId = document.getElementById('editingPermissionId').value;
             const domain = document.getElementById('newDomain').value;
             const name = document.getElementById('newName').value.trim();
             const code = document.getElementById('newCode').value.trim();
@@ -1190,24 +1218,60 @@
             const seconds = String(now.getSeconds()).padStart(2, '0');
             const timeStr = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
             
-            const newPermission = {
-                id: String(allPermissions.length + 1),
-                domain: domain,
-                name: name,
-                code: code,
-                parentId: parentId || undefined,
-                creator: '当前用户',
-                createTime: timeStr,
-                modifier: '当前用户',
-                modifyTime: timeStr
-            };
-            
-            allPermissions.push(newPermission);
-            filteredPermissions = [...allPermissions];
-            renderTable(filteredPermissions);
-            initDomainSelect();
-            closeNewModal();
-            alert('新建权限成功');
+            if (editingId) {
+                // 编辑模式
+                const permission = allPermissions.find(p => p.id === editingId);
+                if (!permission) {
+                    alert('权限不存在');
+                    return;
+                }
+                
+                // 验证不能选择自身或子节点作为父权限
+                if (parentId) {
+                    if (parentId === editingId) {
+                        alert('不能选择自身作为父权限');
+                        return;
+                    }
+                    const descendantIds = getAllDescendantIdsFromList(editingId, allPermissions);
+                    if (descendantIds.includes(parentId)) {
+                        alert('不能选择当前权限的子节点作为父权限，避免产生循环依赖');
+                        return;
+                    }
+                }
+                
+                // 更新权限信息
+                permission.name = name;
+                permission.code = code;
+                permission.parentId = parentId || undefined;
+                permission.modifier = '当前用户';
+                permission.modifyTime = timeStr;
+                
+                filteredPermissions = [...allPermissions];
+                renderTable(filteredPermissions);
+                initDomainSelect();
+                closeNewModal();
+                alert('修改权限成功');
+            } else {
+                // 新建模式
+                const newPermission = {
+                    id: String(allPermissions.length + 1),
+                    domain: domain,
+                    name: name,
+                    code: code,
+                    parentId: parentId || undefined,
+                    creator: '当前用户',
+                    createTime: timeStr,
+                    modifier: '当前用户',
+                    modifyTime: timeStr
+                };
+                
+                allPermissions.push(newPermission);
+                filteredPermissions = [...allPermissions];
+                renderTable(filteredPermissions);
+                initDomainSelect();
+                closeNewModal();
+                alert('新建权限成功');
+            }
         }
         
         // 批量导入
