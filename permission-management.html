@@ -1,0 +1,1626 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>权限管理系统</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background-color: #f5f5f5;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            padding: 24px;
+        }
+        
+        h1 {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 24px;
+            font-weight: 500;
+        }
+        
+        .search-section {
+            background: #fafafa;
+            padding: 20px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+        
+        .search-title {
+            font-size: 16px;
+            color: #333;
+            margin-bottom: 16px;
+            font-weight: 500;
+        }
+        
+        .search-form {
+            display: flex;
+            flex-wrap: nowrap;
+            gap: 16px;
+            align-items: flex-end;
+        }
+        
+        .search-item {
+            display: flex;
+            flex-direction: column;
+            flex: 0 0 auto;
+            min-width: 150px;
+            max-width: 200px;
+        }
+        
+        .search-item label {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 6px;
+        }
+        
+        .search-item input,
+        .search-item select {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        
+        .search-item input:focus,
+        .search-item select:focus {
+            outline: none;
+            border-color: #1890ff;
+        }
+        
+        .search-item select {
+            background: white;
+            cursor: pointer;
+        }
+        
+        .search-buttons {
+            display: flex;
+            gap: 12px;
+            flex-shrink: 0;
+        }
+        
+        .btn {
+            padding: 8px 20px;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: #1890ff;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #40a9ff;
+        }
+        
+        .btn-reset {
+            background: #fff;
+            color: #666;
+            border: 1px solid #ddd;
+        }
+        
+        .btn-reset:hover {
+            border-color: #1890ff;
+            color: #1890ff;
+        }
+        
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        
+        .table-title {
+            font-size: 16px;
+            font-weight: 500;
+            color: #333;
+        }
+        
+        .table-actions {
+            display: flex;
+            gap: 12px;
+        }
+        
+        .btn-new {
+            background: #52c41a;
+            color: white;
+            padding: 8px 20px;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-new:hover {
+            background: #73d13d;
+        }
+        
+        .btn-import {
+            background: #1890ff;
+            color: white;
+            padding: 8px 20px;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-import:hover {
+            background: #40a9ff;
+        }
+        
+        .btn-download {
+            background: #fff;
+            color: #666;
+            padding: 8px 20px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-download:hover {
+            border-color: #1890ff;
+            color: #1890ff;
+        }
+        
+        .file-input {
+            display: none;
+        }
+        
+        .table-section {
+            overflow-x: auto;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+        
+        thead {
+            background: #fafafa;
+        }
+        
+        th {
+            padding: 12px;
+            text-align: left;
+            font-weight: 500;
+            color: #333;
+            border-bottom: 1px solid #e8e8e8;
+        }
+        
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #f0f0f0;
+            color: #666;
+        }
+        
+        tbody tr:hover {
+            background: #fafafa;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+        
+        .operation-info {
+            font-size: 13px;
+            line-height: 1.6;
+        }
+        
+        .operation-info-item {
+            margin-bottom: 4px;
+        }
+        
+        .operation-info-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .operation-buttons {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .btn-action {
+            padding: 4px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            background: white;
+            color: #666;
+            transition: all 0.3s;
+        }
+        
+        .btn-action:hover {
+            border-color: #1890ff;
+            color: #1890ff;
+        }
+        
+        .btn-edit {
+            color: #1890ff;
+        }
+        
+        .btn-edit:hover {
+            background: #e6f7ff;
+        }
+        
+        .btn-copy {
+            color: #52c41a;
+        }
+        
+        .btn-copy:hover {
+            background: #f6ffed;
+        }
+        
+        .btn-delete {
+            color: #ff4d4f;
+        }
+        
+        .btn-delete:hover {
+            background: #fff1f0;
+        }
+        
+        .btn-link {
+            color: #722ed1;
+        }
+        
+        .btn-link:hover {
+            background: #f9f0ff;
+        }
+        
+        /* 弹窗样式 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal.show {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 8px;
+            padding: 24px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .modal-title {
+            font-size: 18px;
+            font-weight: 500;
+            color: #333;
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: #999;
+            cursor: pointer;
+            padding: 0;
+            width: 24px;
+            height: 24px;
+            line-height: 24px;
+        }
+        
+        .modal-close:hover {
+            color: #333;
+        }
+        
+        .modal-form {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        
+        .form-item {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .form-item label {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 6px;
+        }
+        
+        .form-item input,
+        .form-item select {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        .form-item input:focus,
+        .form-item select:focus {
+            outline: none;
+            border-color: #1890ff;
+        }
+        
+        .form-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 8px;
+        }
+        
+        /* 权限树样式 */
+        .permission-tree {
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            max-height: 300px;
+            overflow-y: auto;
+            padding: 8px;
+            background: #fafafa;
+        }
+        
+        .tree-node {
+            margin: 4px 0;
+        }
+        
+        .tree-node-content {
+            display: flex;
+            align-items: center;
+            padding: 4px 8px;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+        
+        .tree-node-content:hover {
+            background: #e6f7ff;
+        }
+        
+        .tree-node-content.selected {
+            background: #bae7ff;
+        }
+        
+        .tree-toggle {
+            width: 16px;
+            height: 16px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 4px;
+            cursor: pointer;
+            color: #666;
+            font-size: 12px;
+        }
+        
+        .tree-toggle:hover {
+            color: #1890ff;
+        }
+        
+        .tree-checkbox {
+            margin-right: 6px;
+        }
+        
+        .tree-label {
+            flex: 1;
+            font-size: 14px;
+            color: #333;
+        }
+        
+        .tree-children {
+            margin-left: 20px;
+            display: none;
+        }
+        
+        .tree-children.expanded {
+            display: block;
+        }
+        
+        .tree-node.leaf .tree-toggle {
+            visibility: hidden;
+        }
+        
+        .tree-node-content.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            background: #f5f5f5 !important;
+        }
+        
+        .tree-node-content.disabled:hover {
+            background: #f5f5f5 !important;
+        }
+        
+        .tree-node-content.disabled .tree-label {
+            color: #999;
+        }
+        
+        .tree-node-content.disabled .tree-checkbox {
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="search-section">
+            <div class="search-title">搜索条件</div>
+            <form class="search-form" id="searchForm">
+                <div class="search-item">
+                    <label>ID</label>
+                    <input type="text" id="searchId" placeholder="请输入ID">
+                </div>
+                <div class="search-item">
+                    <label>权限域</label>
+                    <select id="searchDomain">
+                        <option value="">全部</option>
+                    </select>
+                </div>
+                <div class="search-item">
+                    <label>权限名称</label>
+                    <input type="text" id="searchName" placeholder="请输入权限名称">
+                </div>
+                <div class="search-item">
+                    <label>权限码</label>
+                    <input type="text" id="searchCode" placeholder="请输入权限码">
+                </div>
+                <div class="search-buttons">
+                    <button type="button" class="btn btn-primary" onclick="handleSearch()">搜索</button>
+                    <button type="button" class="btn btn-reset" onclick="handleReset()">重置</button>
+                </div>
+            </form>
+        </div>
+        
+        <div class="table-section">
+            <div class="table-header">
+                <div class="table-title">权限列表</div>
+                <div class="table-actions">
+                    <button type="button" class="btn-new" onclick="handleNew()">新建权限</button>
+                    <button type="button" class="btn-import" onclick="handleImport()">批量导入</button>
+                    <button type="button" class="btn-download" onclick="handleDownloadTemplate()">模板下载</button>
+                    <input type="file" id="importFile" class="file-input" accept=".csv,.xlsx,.xls" onchange="handleFileSelect(event)">
+                </div>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>权限域</th>
+                        <th>权限名称</th>
+                        <th>权限码</th>
+                        <th>操作信息</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                    <!-- 数据将通过JavaScript动态生成 -->
+                </tbody>
+            </table>
+            <div id="emptyState" class="empty-state" style="display: none;">
+                暂无数据
+            </div>
+        </div>
+    </div>
+    
+    <!-- 新建权限弹窗 -->
+    <div id="newModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">新建权限</div>
+                <button type="button" class="modal-close" onclick="closeNewModal()">&times;</button>
+            </div>
+            <form class="modal-form" id="newPermissionForm" onsubmit="handleSubmitNew(event)">
+                <div class="form-item">
+                    <label>权限域 <span style="color: red;">*</span></label>
+                    <select id="newDomain" required>
+                        <option value="">请选择权限域</option>
+                    </select>
+                </div>
+                <div class="form-item">
+                    <label>权限名称 <span style="color: red;">*</span></label>
+                    <input type="text" id="newName" placeholder="请输入权限名称" required>
+                </div>
+                <div class="form-item">
+                    <label>权限码 <span style="color: red;">*</span></label>
+                    <input type="text" id="newCode" placeholder="请输入权限码，如：user:view" required>
+                </div>
+                <div class="form-item">
+                    <label>关联父权限</label>
+                    <div class="permission-tree" id="parentPermissionTree">
+                        <!-- 权限树将通过JavaScript动态生成 -->
+                    </div>
+                    <input type="hidden" id="selectedParentId">
+                </div>
+                <div class="form-buttons">
+                    <button type="button" class="btn btn-reset" onclick="closeNewModal()">取消</button>
+                    <button type="submit" class="btn btn-primary">提交</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- 关联父权限弹窗 -->
+    <div id="linkParentModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">关联父权限</div>
+                <button type="button" class="modal-close" onclick="closeLinkParentModal()">&times;</button>
+            </div>
+            <form class="modal-form" id="linkParentForm" onsubmit="handleSubmitLinkParent(event)">
+                <div class="form-item">
+                    <label>当前权限</label>
+                    <input type="text" id="currentPermission" readonly style="background: #f5f5f5;">
+                    <input type="hidden" id="currentPermissionId">
+                </div>
+                <div class="form-item">
+                    <label>选择父权限</label>
+                    <div class="permission-tree" id="linkParentPermissionTree">
+                        <!-- 权限树将通过JavaScript动态生成 -->
+                    </div>
+                    <input type="hidden" id="linkSelectedParentId">
+                    <div style="margin-top: 8px;">
+                        <button type="button" class="btn btn-reset" onclick="clearParentSelection()" style="font-size: 12px; padding: 4px 12px;">取消关联</button>
+                    </div>
+                </div>
+                <div class="form-buttons">
+                    <button type="button" class="btn btn-reset" onclick="closeLinkParentModal()">取消</button>
+                    <button type="submit" class="btn btn-primary">确定</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        // 示例数据
+        let allPermissions = [
+            // 用户管理域 - 形成层级关系
+            {
+                id: '1',
+                domain: '用户管理',
+                name: '用户管理',
+                code: 'user:manage',
+                creator: '张三',
+                createTime: '2024-01-10 10:00:00',
+                modifier: '张三',
+                modifyTime: '2024-01-10 10:00:00'
+            },
+            {
+                id: '2',
+                domain: '用户管理',
+                name: '用户查看',
+                code: 'user:view',
+                parentId: '1',
+                creator: '张三',
+                createTime: '2024-01-15 10:30:00',
+                modifier: '张三',
+                modifyTime: '2024-01-15 10:30:00'
+            },
+            {
+                id: '3',
+                domain: '用户管理',
+                name: '用户编辑',
+                code: 'user:edit',
+                parentId: '1',
+                creator: '李四',
+                createTime: '2024-01-16 14:20:00',
+                modifier: '王五',
+                modifyTime: '2024-01-20 09:15:00'
+            },
+            {
+                id: '4',
+                domain: '用户管理',
+                name: '用户删除',
+                code: 'user:delete',
+                parentId: '1',
+                creator: '李四',
+                createTime: '2024-01-17 09:00:00',
+                modifier: '李四',
+                modifyTime: '2024-01-17 09:00:00'
+            },
+            {
+                id: '5',
+                domain: '用户管理',
+                name: '用户列表',
+                code: 'user:list',
+                parentId: '2',
+                creator: '张三',
+                createTime: '2024-01-18 10:00:00',
+                modifier: '张三',
+                modifyTime: '2024-01-18 10:00:00'
+            },
+            {
+                id: '6',
+                domain: '用户管理',
+                name: '用户详情',
+                code: 'user:detail',
+                parentId: '2',
+                creator: '张三',
+                createTime: '2024-01-19 10:00:00',
+                modifier: '张三',
+                modifyTime: '2024-01-19 10:00:00'
+            },
+            {
+                id: '7',
+                domain: '用户管理',
+                name: '用户新增',
+                code: 'user:create',
+                parentId: '3',
+                creator: '李四',
+                createTime: '2024-01-20 10:00:00',
+                modifier: '李四',
+                modifyTime: '2024-01-20 10:00:00'
+            },
+            {
+                id: '8',
+                domain: '用户管理',
+                name: '用户更新',
+                code: 'user:update',
+                parentId: '3',
+                creator: '李四',
+                createTime: '2024-01-21 10:00:00',
+                modifier: '李四',
+                modifyTime: '2024-01-21 10:00:00'
+            },
+            // 角色管理域
+            {
+                id: '9',
+                domain: '角色管理',
+                name: '角色查看',
+                code: 'role:view',
+                creator: '张三',
+                createTime: '2024-01-17 11:00:00',
+                modifier: '张三',
+                modifyTime: '2024-01-17 11:00:00'
+            },
+            {
+                id: '10',
+                domain: '角色管理',
+                name: '角色编辑',
+                code: 'role:edit',
+                creator: '李四',
+                createTime: '2024-01-18 15:45:00',
+                modifier: '李四',
+                modifyTime: '2024-01-18 15:45:00'
+            },
+            // 用户管理域 - 平级权限（与"用户管理"平级）
+            {
+                id: '13',
+                domain: '用户管理',
+                name: '用户配置',
+                code: 'user:config',
+                creator: '张三',
+                createTime: '2024-01-22 10:00:00',
+                modifier: '张三',
+                modifyTime: '2024-01-22 10:00:00'
+            },
+            {
+                id: '14',
+                domain: '用户管理',
+                name: '用户统计',
+                code: 'user:statistics',
+                creator: '李四',
+                createTime: '2024-01-23 14:30:00',
+                modifier: '李四',
+                modifyTime: '2024-01-23 14:30:00'
+            },
+            // 权限管理域
+            {
+                id: '11',
+                domain: '权限管理',
+                name: '权限查看',
+                code: 'permission:view',
+                creator: '王五',
+                createTime: '2024-01-19 09:30:00',
+                modifier: '王五',
+                modifyTime: '2024-01-19 09:30:00'
+            },
+            {
+                id: '12',
+                domain: '权限管理',
+                name: '权限编辑',
+                code: 'permission:edit',
+                creator: '张三',
+                createTime: '2024-01-20 16:20:00',
+                modifier: '李四',
+                modifyTime: '2024-01-21 10:10:00'
+            }
+        ];
+        
+        let filteredPermissions = [...allPermissions];
+        
+        // 渲染表格
+        function renderTable(permissions) {
+            const tbody = document.getElementById('tableBody');
+            const emptyState = document.getElementById('emptyState');
+            
+            if (permissions.length === 0) {
+                tbody.innerHTML = '';
+                emptyState.style.display = 'block';
+                return;
+            }
+            
+            emptyState.style.display = 'none';
+            tbody.innerHTML = permissions.map(permission => `
+                <tr>
+                    <td>${permission.id}</td>
+                    <td>${permission.domain}</td>
+                    <td>${permission.name}</td>
+                    <td>${permission.code}</td>
+                    <td>
+                        <div class="operation-info">
+                            <div class="operation-info-item">创建人：${permission.creator}</div>
+                            <div class="operation-info-item">创建时间：${permission.createTime}</div>
+                            <div class="operation-info-item">修改人：${permission.modifier}</div>
+                            <div class="operation-info-item">修改时间：${permission.modifyTime}</div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="operation-buttons">
+                            <button type="button" class="btn-action btn-edit" onclick="handleEdit('${permission.id}')">修改</button>
+                            <button type="button" class="btn-action btn-copy" onclick="handleCopy('${permission.id}')">复制</button>
+                            <button type="button" class="btn-action btn-link" onclick="handleLinkParent('${permission.id}')">关联父权限</button>
+                            <button type="button" class="btn-action btn-delete" onclick="handleDelete('${permission.id}')">删除</button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+        
+        // 初始化域下拉框
+        function initDomainSelect() {
+            const domainSelect = document.getElementById('searchDomain');
+            const domains = [...new Set(allPermissions.map(p => p.domain))].sort();
+            
+            domains.forEach(domain => {
+                const option = document.createElement('option');
+                option.value = domain;
+                option.textContent = domain;
+                domainSelect.appendChild(option);
+            });
+        }
+        
+        // 搜索功能
+        function handleSearch() {
+            const searchId = document.getElementById('searchId').value.trim();
+            const searchDomain = document.getElementById('searchDomain').value;
+            const searchName = document.getElementById('searchName').value.trim();
+            const searchCode = document.getElementById('searchCode').value.trim();
+            
+            filteredPermissions = allPermissions.filter(permission => {
+                const matchId = !searchId || permission.id.includes(searchId);
+                const matchDomain = !searchDomain || permission.domain === searchDomain;
+                const matchName = !searchName || permission.name.includes(searchName);
+                const matchCode = !searchCode || permission.code.includes(searchCode);
+                
+                return matchId && matchDomain && matchName && matchCode;
+            });
+            
+            renderTable(filteredPermissions);
+        }
+        
+        // 重置功能
+        function handleReset() {
+            document.getElementById('searchId').value = '';
+            document.getElementById('searchDomain').value = '';
+            document.getElementById('searchName').value = '';
+            document.getElementById('searchCode').value = '';
+            
+            filteredPermissions = [...allPermissions];
+            renderTable(filteredPermissions);
+        }
+        
+        // 修改功能
+        function handleEdit(id) {
+            const permission = allPermissions.find(p => p.id === id);
+            if (permission) {
+                alert(`修改权限：${permission.name} (ID: ${id})`);
+                // 这里可以打开编辑弹窗或跳转到编辑页面
+            }
+        }
+        
+        // 复制功能
+        function handleCopy(id) {
+            const permission = allPermissions.find(p => p.id === id);
+            if (permission) {
+                const now = new Date();
+                const year = now.getFullYear();
+                const month = String(now.getMonth() + 1).padStart(2, '0');
+                const day = String(now.getDate()).padStart(2, '0');
+                const hours = String(now.getHours()).padStart(2, '0');
+                const minutes = String(now.getMinutes()).padStart(2, '0');
+                const seconds = String(now.getSeconds()).padStart(2, '0');
+                const timeStr = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+                
+                const newPermission = {
+                    ...permission,
+                    id: String(allPermissions.length + 1),
+                    creator: '当前用户',
+                    createTime: timeStr,
+                    modifier: '当前用户',
+                    modifyTime: timeStr
+                };
+                allPermissions.push(newPermission);
+                filteredPermissions = [...allPermissions];
+                renderTable(filteredPermissions);
+                alert(`已复制权限：${permission.name}`);
+            }
+        }
+        
+        // 删除功能
+        function handleDelete(id) {
+            const permission = allPermissions.find(p => p.id === id);
+            if (permission) {
+                if (confirm(`确定要删除权限"${permission.name}"吗？`)) {
+                    allPermissions = allPermissions.filter(p => p.id !== id);
+                    filteredPermissions = filteredPermissions.filter(p => p.id !== id);
+                    renderTable(filteredPermissions);
+                    alert('删除成功');
+                }
+            }
+        }
+        
+        // 构建权限树结构
+        function buildPermissionTree(domain = null) {
+            // 根据域过滤权限
+            const filteredPermissions = domain 
+                ? allPermissions.filter(p => p.domain === domain)
+                : allPermissions;
+            
+            if (filteredPermissions.length === 0) {
+                return [];
+            }
+            
+            // 创建权限映射（只包含过滤后的权限）
+            const permissionMap = {};
+            filteredPermissions.forEach(p => {
+                permissionMap[p.id] = { ...p, children: [] };
+            });
+            
+            // 构建树结构（只考虑过滤后的权限之间的父子关系）
+            const rootNodes = [];
+            filteredPermissions.forEach(p => {
+                const node = permissionMap[p.id];
+                if (p.parentId && permissionMap[p.parentId]) {
+                    // 只有当父权限也在过滤后的列表中时，才建立父子关系
+                    permissionMap[p.parentId].children.push(node);
+                } else {
+                    rootNodes.push(node);
+                }
+            });
+            
+            return rootNodes;
+        }
+        
+        // 更新权限树显示
+        function updatePermissionTree(domain) {
+            const treeContainer = document.getElementById('parentPermissionTree');
+            treeContainer.innerHTML = '';
+            
+            if (!domain) {
+                treeContainer.innerHTML = '<div style="padding: 20px; text-align: center; color: #999;">请先选择权限域</div>';
+                document.getElementById('selectedParentId').value = '';
+                return;
+            }
+            
+            const tree = buildPermissionTree(domain);
+            if (tree.length > 0) {
+                tree.forEach(rootNode => {
+                    treeContainer.appendChild(renderTreeNode(rootNode, 0, 'parentPermissionTree'));
+                });
+            } else {
+                treeContainer.innerHTML = '<div style="padding: 20px; text-align: center; color: #999;">该域下暂无权限数据</div>';
+            }
+            document.getElementById('selectedParentId').value = '';
+        }
+        
+        // 渲染权限树节点
+        function renderTreeNode(node, level = 0, containerId = null, disabled = false) {
+            const hasChildren = node.children && node.children.length > 0;
+            const nodeDiv = document.createElement('div');
+            nodeDiv.className = 'tree-node' + (hasChildren ? '' : ' leaf');
+            nodeDiv.dataset.nodeId = node.id;
+            
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'tree-node-content' + (disabled ? ' disabled' : '');
+            
+            if (!disabled) {
+                contentDiv.onclick = function(e) {
+                    if (e.target.type !== 'radio') {
+                        selectTreeNode(node.id, containerId);
+                    }
+                };
+            }
+            
+            // 展开/折叠按钮
+            const toggleSpan = document.createElement('span');
+            toggleSpan.className = 'tree-toggle';
+            if (hasChildren) {
+                toggleSpan.textContent = '▶';
+                if (!disabled) {
+                    toggleSpan.onclick = function(e) {
+                        e.stopPropagation();
+                        toggleTreeNode(nodeDiv);
+                    };
+                }
+            }
+            
+            // 单选按钮
+            const radio = document.createElement('input');
+            radio.type = 'radio';
+            radio.name = 'parentPermission';
+            radio.className = 'tree-checkbox';
+            radio.value = node.id;
+            radio.disabled = disabled;
+            if (!disabled) {
+                radio.onclick = function(e) {
+                    e.stopPropagation();
+                    selectTreeNode(node.id, containerId);
+                };
+            }
+            
+            // 标签
+            const label = document.createElement('span');
+            label.className = 'tree-label';
+            label.textContent = `${node.name} (${node.code})`;
+            
+            contentDiv.appendChild(toggleSpan);
+            contentDiv.appendChild(radio);
+            contentDiv.appendChild(label);
+            
+            nodeDiv.appendChild(contentDiv);
+            
+            // 子节点
+            if (hasChildren) {
+                const childrenDiv = document.createElement('div');
+                childrenDiv.className = 'tree-children';
+                node.children.forEach(child => {
+                    childrenDiv.appendChild(renderTreeNode(child, level + 1, containerId, disabled));
+                });
+                nodeDiv.appendChild(childrenDiv);
+            }
+            
+            return nodeDiv;
+        }
+        
+        // 切换树节点展开/折叠
+        function toggleTreeNode(nodeDiv) {
+            const children = nodeDiv.querySelector('.tree-children');
+            const toggle = nodeDiv.querySelector('.tree-toggle');
+            if (children) {
+                children.classList.toggle('expanded');
+                toggle.textContent = children.classList.contains('expanded') ? '▼' : '▶';
+            }
+        }
+        
+        // 选择树节点
+        function selectTreeNode(nodeId, containerId = null) {
+            // 确定要更新的容器
+            const container = containerId 
+                ? document.getElementById(containerId)
+                : document.querySelector('.permission-tree');
+            
+            if (!container) return;
+            
+            // 如果是关联父权限的树，验证不能选择自身和子节点
+            if (container.id === 'linkParentPermissionTree') {
+                const excludeId = container.dataset.excludeId;
+                if (excludeId) {
+                    // 检查是否是自身
+                    if (nodeId === excludeId) {
+                        alert('不能选择自身作为父权限');
+                        return;
+                    }
+                    
+                    // 检查是否是子节点
+                    const descendantIds = getAllDescendantIdsFromList(excludeId, allPermissions);
+                    if (descendantIds.includes(nodeId)) {
+                        alert('不能选择当前权限的子节点作为父权限，避免产生循环依赖');
+                        return;
+                    }
+                }
+            }
+            
+            // 更新该容器内的单选按钮
+            const radio = container.querySelector(`input[name="parentPermission"][value="${nodeId}"]`);
+            if (radio) {
+                radio.checked = true;
+            }
+            
+            // 更新隐藏字段（根据容器判断是新建还是关联）
+            const selectedParentIdInput = document.getElementById('selectedParentId');
+            const linkSelectedParentIdInput = document.getElementById('linkSelectedParentId');
+            
+            if (container.id === 'parentPermissionTree' && selectedParentIdInput) {
+                selectedParentIdInput.value = nodeId;
+            } else if (container.id === 'linkParentPermissionTree' && linkSelectedParentIdInput) {
+                linkSelectedParentIdInput.value = nodeId;
+            }
+            
+            // 更新选中样式（只更新当前容器内的）
+            container.querySelectorAll('.tree-node-content').forEach(el => {
+                el.classList.remove('selected');
+            });
+            const selectedContent = container.querySelector(`.tree-node[data-node-id="${nodeId}"] .tree-node-content`);
+            if (selectedContent) {
+                selectedContent.classList.add('selected');
+            }
+        }
+        
+        // 新建权限
+        function handleNew() {
+            const modal = document.getElementById('newModal');
+            const newDomainSelect = document.getElementById('newDomain');
+            
+            // 清空表单
+            document.getElementById('newPermissionForm').reset();
+            document.getElementById('selectedParentId').value = '';
+            
+            // 填充域下拉框
+            newDomainSelect.innerHTML = '<option value="">请选择权限域</option>';
+            const domains = [...new Set(allPermissions.map(p => p.domain))].sort();
+            domains.forEach(domain => {
+                const option = document.createElement('option');
+                option.value = domain;
+                option.textContent = domain;
+                newDomainSelect.appendChild(option);
+            });
+            
+            // 初始显示提示信息
+            const treeContainer = document.getElementById('parentPermissionTree');
+            treeContainer.innerHTML = '<div style="padding: 20px; text-align: center; color: #999;">请先选择权限域</div>';
+            
+            // 监听域选择变化
+            newDomainSelect.onchange = function() {
+                updatePermissionTree(this.value);
+            };
+            
+            modal.classList.add('show');
+        }
+        
+        // 关闭新建弹窗
+        function closeNewModal() {
+            const modal = document.getElementById('newModal');
+            modal.classList.remove('show');
+            document.getElementById('newPermissionForm').reset();
+        }
+        
+        // 提交新建权限
+        function handleSubmitNew(event) {
+            event.preventDefault();
+            
+            const domain = document.getElementById('newDomain').value;
+            const name = document.getElementById('newName').value.trim();
+            const code = document.getElementById('newCode').value.trim();
+            const parentId = document.getElementById('selectedParentId').value;
+            
+            if (!domain || !name || !code) {
+                alert('请填写完整必填信息');
+                return;
+            }
+            
+            // 验证父权限是否与当前权限属于同一域
+            if (parentId) {
+                const parentPermission = allPermissions.find(p => p.id === parentId);
+                if (!parentPermission) {
+                    alert('选择的父权限不存在');
+                    return;
+                }
+                if (parentPermission.domain !== domain) {
+                    alert('父权限必须与当前权限属于同一域');
+                    return;
+                }
+            }
+            
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            const timeStr = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+            
+            const newPermission = {
+                id: String(allPermissions.length + 1),
+                domain: domain,
+                name: name,
+                code: code,
+                parentId: parentId || undefined,
+                creator: '当前用户',
+                createTime: timeStr,
+                modifier: '当前用户',
+                modifyTime: timeStr
+            };
+            
+            allPermissions.push(newPermission);
+            filteredPermissions = [...allPermissions];
+            renderTable(filteredPermissions);
+            initDomainSelect();
+            closeNewModal();
+            alert('新建权限成功');
+        }
+        
+        // 批量导入
+        function handleImport() {
+            document.getElementById('importFile').click();
+        }
+        
+        // 处理文件选择
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    // 这里简化处理，实际应该解析CSV或Excel文件
+                    // 示例：假设文件是CSV格式，每行格式为：域,权限名称,权限码
+                    const text = e.target.result;
+                    const lines = text.split('\n').filter(line => line.trim());
+                    
+                    if (lines.length <= 1) {
+                        alert('文件为空或格式不正确');
+                        return;
+                    }
+                    
+                    const now = new Date();
+                    const year = now.getFullYear();
+                    const month = String(now.getMonth() + 1).padStart(2, '0');
+                    const day = String(now.getDate()).padStart(2, '0');
+                    const hours = String(now.getHours()).padStart(2, '0');
+                    const minutes = String(now.getMinutes()).padStart(2, '0');
+                    const seconds = String(now.getSeconds()).padStart(2, '0');
+                    const timeStr = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+                    
+                    let successCount = 0;
+                    let startId = allPermissions.length + 1;
+                    
+                    // 跳过表头，从第二行开始
+                    for (let i = 1; i < lines.length; i++) {
+                        const parts = lines[i].split(',').map(p => p.trim());
+                        if (parts.length >= 3) {
+                            const newPermission = {
+                                id: String(startId++),
+                                domain: parts[0],
+                                name: parts[1],
+                                code: parts[2],
+                                creator: '当前用户',
+                                createTime: timeStr,
+                                modifier: '当前用户',
+                                modifyTime: timeStr
+                            };
+                            allPermissions.push(newPermission);
+                            successCount++;
+                        }
+                    }
+                    
+                    filteredPermissions = [...allPermissions];
+                    renderTable(filteredPermissions);
+                    initDomainSelect();
+                    alert(`成功导入 ${successCount} 条权限`);
+                    
+                    // 清空文件选择
+                    event.target.value = '';
+                } catch (error) {
+                    alert('文件解析失败：' + error.message);
+                }
+            };
+            
+            if (file.name.endsWith('.csv')) {
+                reader.readAsText(file, 'UTF-8');
+            } else {
+                alert('目前仅支持CSV格式文件');
+            }
+        }
+        
+        // 模板下载
+        function handleDownloadTemplate() {
+            // 创建CSV模板内容
+            const csvContent = '域,权限名称,权限码\n用户管理,用户查看,user:view\n角色管理,角色编辑,role:edit';
+            
+            // 创建Blob对象
+            const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
+            
+            // 创建下载链接
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', '权限导入模板.csv');
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+        
+        // 检查节点是否应该被禁用（是否是当前权限或其子节点）
+        function isNodeDisabled(nodeId, excludeId, allPermissions) {
+            if (nodeId === excludeId) {
+                return true; // 不能选择自身
+            }
+            
+            // 检查是否是当前权限的子节点
+            const descendantIds = getAllDescendantIdsFromList(excludeId, allPermissions);
+            return descendantIds.includes(nodeId);
+        }
+        
+        // 渲染树节点（带禁用状态检查）
+        function renderTreeNodeWithDisabledCheck(node, level, containerId, excludeId, allPermissions) {
+            const disabled = isNodeDisabled(node.id, excludeId, allPermissions);
+            const hasChildren = node.children && node.children.length > 0;
+            const nodeDiv = document.createElement('div');
+            nodeDiv.className = 'tree-node' + (hasChildren ? '' : ' leaf');
+            nodeDiv.dataset.nodeId = node.id;
+            
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'tree-node-content' + (disabled ? ' disabled' : '');
+            
+            if (!disabled) {
+                contentDiv.onclick = function(e) {
+                    if (e.target.type !== 'radio') {
+                        selectTreeNode(node.id, containerId);
+                    }
+                };
+            }
+            
+            // 展开/折叠按钮
+            const toggleSpan = document.createElement('span');
+            toggleSpan.className = 'tree-toggle';
+            if (hasChildren) {
+                toggleSpan.textContent = '▶';
+                if (!disabled) {
+                    toggleSpan.onclick = function(e) {
+                        e.stopPropagation();
+                        toggleTreeNode(nodeDiv);
+                    };
+                }
+            }
+            
+            // 单选按钮
+            const radio = document.createElement('input');
+            radio.type = 'radio';
+            radio.name = 'parentPermission';
+            radio.className = 'tree-checkbox';
+            radio.value = node.id;
+            radio.disabled = disabled;
+            if (!disabled) {
+                radio.onclick = function(e) {
+                    e.stopPropagation();
+                    selectTreeNode(node.id, containerId);
+                };
+            }
+            
+            // 标签
+            const label = document.createElement('span');
+            label.className = 'tree-label';
+            label.textContent = `${node.name} (${node.code})`;
+            
+            contentDiv.appendChild(toggleSpan);
+            contentDiv.appendChild(radio);
+            contentDiv.appendChild(label);
+            
+            nodeDiv.appendChild(contentDiv);
+            
+            // 递归处理子节点（每个子节点单独检查是否禁用）
+            if (hasChildren) {
+                const childrenDiv = document.createElement('div');
+                childrenDiv.className = 'tree-children';
+                node.children.forEach(child => {
+                    childrenDiv.appendChild(renderTreeNodeWithDisabledCheck(child, level + 1, containerId, excludeId, allPermissions));
+                });
+                nodeDiv.appendChild(childrenDiv);
+            }
+            
+            return nodeDiv;
+        }
+        
+        // 更新关联父权限树显示
+        function updateLinkParentTree(domain, excludeId, selectedParentId = null) {
+            const treeContainer = document.getElementById('linkParentPermissionTree');
+            treeContainer.innerHTML = '';
+            
+            if (!domain) {
+                treeContainer.innerHTML = '<div style="padding: 20px; text-align: center; color: #999;">请先选择权限域</div>';
+                document.getElementById('linkSelectedParentId').value = '';
+                return;
+            }
+            
+            // 构建该域的权限树（不过滤，保留完整树结构）
+            const tree = buildPermissionTree(domain);
+            
+            // 如果树为空，显示空树提示
+            if (tree.length === 0) {
+                treeContainer.innerHTML = '<div style="padding: 20px; text-align: center; color: #999;">该域下暂无权限数据</div>';
+                document.getElementById('linkSelectedParentId').value = '';
+                return;
+            }
+            
+            // 将当前权限ID存储到容器上，用于后续验证
+            treeContainer.dataset.currentPermissionId = excludeId;
+            treeContainer.dataset.excludeId = excludeId;
+            
+            // 渲染完整的树，但禁用当前权限及其子节点
+            if (tree.length > 0) {
+                tree.forEach(rootNode => {
+                    treeContainer.appendChild(renderTreeNodeWithDisabledCheck(rootNode, 0, 'linkParentPermissionTree', excludeId, allPermissions));
+                });
+                
+                // 如果有选中的父权限，回显选中状态
+                if (selectedParentId) {
+                    // 使用 setTimeout 确保 DOM 已经渲染完成
+                    setTimeout(() => {
+                        selectTreeNode(selectedParentId, 'linkParentPermissionTree');
+                    }, 50);
+                } else {
+                    document.getElementById('linkSelectedParentId').value = '';
+                }
+            } else {
+                treeContainer.innerHTML = '<div style="padding: 20px; text-align: center; color: #999;">该域下暂无权限数据</div>';
+                document.getElementById('linkSelectedParentId').value = '';
+            }
+        }
+        
+        // 关联父权限
+        function handleLinkParent(id) {
+            const permission = allPermissions.find(p => p.id === id);
+            if (!permission) return;
+            
+            const modal = document.getElementById('linkParentModal');
+            const currentPermissionInput = document.getElementById('currentPermission');
+            const currentPermissionIdInput = document.getElementById('currentPermissionId');
+            
+            // 设置当前权限信息
+            currentPermissionInput.value = `${permission.name} (${permission.code})`;
+            currentPermissionIdInput.value = id;
+            
+            // 使用与新建权限相同的逻辑来渲染树，并回显已关联的父权限
+            updateLinkParentTree(permission.domain, id, permission.parentId || null);
+            
+            modal.classList.add('show');
+        }
+        
+        // 获取指定节点的所有子节点ID（包括子节点的子节点，递归获取）
+        function getAllDescendantIds(node) {
+            const ids = [];
+            
+            if (node.children && node.children.length > 0) {
+                node.children.forEach(child => {
+                    ids.push(child.id);
+                    // 递归获取子节点的所有后代
+                    const childDescendants = getAllDescendantIds(child);
+                    ids.push(...childDescendants);
+                });
+            }
+            
+            return ids;
+        }
+        
+        // 从权限列表中查找节点并获取所有后代ID
+        function getAllDescendantIdsFromList(permissionId, allPermissions) {
+            const permission = allPermissions.find(p => p.id === permissionId);
+            if (!permission) return [];
+            
+            // 构建树结构来获取所有后代
+            const permissionMap = {};
+            allPermissions.forEach(p => {
+                permissionMap[p.id] = { ...p, children: [] };
+            });
+            
+            // 构建树
+            allPermissions.forEach(p => {
+                if (p.parentId && permissionMap[p.parentId]) {
+                    permissionMap[p.parentId].children.push(permissionMap[p.id]);
+                }
+            });
+            
+            const node = permissionMap[permissionId];
+            if (!node) return [];
+            
+            return getAllDescendantIds(node);
+        }
+        
+        // 过滤树，排除指定节点及其所有子节点
+        function filterTreeExcludingNode(tree, excludeId, allPermissions = null) {
+            const result = [];
+            
+            // 获取所有需要排除的ID（当前节点及其所有后代）
+            const excludeIds = new Set([excludeId]);
+            if (allPermissions) {
+                const descendantIds = getAllDescendantIdsFromList(excludeId, allPermissions);
+                descendantIds.forEach(id => excludeIds.add(id));
+            }
+            
+            function filterNode(node) {
+                // 如果节点在排除列表中，直接返回null
+                if (excludeIds.has(node.id)) {
+                    return null;
+                }
+                
+                const filteredNode = { ...node, children: [] };
+                
+                if (node.children && node.children.length > 0) {
+                    node.children.forEach(child => {
+                        const filteredChild = filterNode(child);
+                        if (filteredChild) {
+                            filteredNode.children.push(filteredChild);
+                        }
+                    });
+                }
+                
+                return filteredNode;
+            }
+            
+            tree.forEach(rootNode => {
+                const filtered = filterNode(rootNode);
+                if (filtered) {
+                    result.push(filtered);
+                }
+            });
+            
+            return result;
+        }
+        
+        // 关闭关联父权限弹窗
+        function closeLinkParentModal() {
+            const modal = document.getElementById('linkParentModal');
+            modal.classList.remove('show');
+            document.getElementById('linkParentForm').reset();
+        }
+        
+        // 取消父权限选择
+        function clearParentSelection() {
+            const treeContainer = document.getElementById('linkParentPermissionTree');
+            
+            // 清除所有选中状态
+            treeContainer.querySelectorAll('input[name="parentPermission"]').forEach(radio => {
+                radio.checked = false;
+            });
+            treeContainer.querySelectorAll('.tree-node-content').forEach(el => {
+                el.classList.remove('selected');
+            });
+            
+            // 清空隐藏字段
+            document.getElementById('linkSelectedParentId').value = '';
+        }
+        
+        // 提交关联父权限
+        function handleSubmitLinkParent(event) {
+            event.preventDefault();
+            
+            const currentPermissionId = document.getElementById('currentPermissionId').value;
+            const parentId = document.getElementById('linkSelectedParentId').value;
+            
+            if (!currentPermissionId) {
+                alert('权限信息错误');
+                return;
+            }
+            
+            const permission = allPermissions.find(p => p.id === currentPermissionId);
+            if (!permission) {
+                alert('权限不存在');
+                return;
+            }
+            
+            // 如果 parentId 为空，表示取消关联
+            if (!parentId) {
+                // 取消关联
+                permission.parentId = undefined;
+                
+                // 更新修改信息
+                const now = new Date();
+                const year = now.getFullYear();
+                const month = String(now.getMonth() + 1).padStart(2, '0');
+                const day = String(now.getDate()).padStart(2, '0');
+                const hours = String(now.getHours()).padStart(2, '0');
+                const minutes = String(now.getMinutes()).padStart(2, '0');
+                const seconds = String(now.getSeconds()).padStart(2, '0');
+                permission.modifier = '当前用户';
+                permission.modifyTime = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+                
+                filteredPermissions = [...allPermissions];
+                renderTable(filteredPermissions);
+                closeLinkParentModal();
+                
+                alert('已取消关联父权限');
+                return;
+            }
+            
+            // 验证不能选择自身
+            if (parentId === currentPermissionId) {
+                alert('不能选择自身作为父权限');
+                return;
+            }
+            
+            // 验证父权限是否存在
+            const parentPermission = allPermissions.find(p => p.id === parentId);
+            if (!parentPermission) {
+                alert('父权限不存在');
+                return;
+            }
+            
+            // 验证父权限是否与当前权限属于同一域
+            if (parentPermission.domain !== permission.domain) {
+                alert('父权限必须与当前权限属于同一域');
+                return;
+            }
+            
+            // 验证不能选择当前权限的子节点（避免循环依赖）
+            const descendantIds = getAllDescendantIdsFromList(currentPermissionId, allPermissions);
+            if (descendantIds.includes(parentId)) {
+                alert('不能选择当前权限的子节点作为父权限，避免产生循环依赖');
+                return;
+            }
+            
+            // 添加或更新parentId字段
+            permission.parentId = parentId;
+            
+            // 更新修改信息
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            permission.modifier = '当前用户';
+            permission.modifyTime = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+            
+            filteredPermissions = [...allPermissions];
+            renderTable(filteredPermissions);
+            closeLinkParentModal();
+            
+            alert(`已成功关联父权限：${parentPermission.name}`);
+        }
+        
+        // 回车搜索
+        document.getElementById('searchForm').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                handleSearch();
+            }
+        });
+        
+        // 初始化渲染
+        initDomainSelect();
+        renderTable(filteredPermissions);
+    </script>
+</body>
+</html>
