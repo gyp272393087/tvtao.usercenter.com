@@ -1,0 +1,1139 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用户-资源配置</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background-color: #f5f5f5;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            padding: 24px;
+        }
+        
+        h1 {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 24px;
+            font-weight: 500;
+        }
+        
+        .search-section {
+            background: #fafafa;
+            padding: 20px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+        
+        .search-title {
+            font-size: 16px;
+            color: #333;
+            margin-bottom: 16px;
+            font-weight: 500;
+        }
+        
+        .search-form {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            align-items: flex-end;
+        }
+        
+        .search-item {
+            display: flex;
+            flex-direction: column;
+            flex: 0 0 auto;
+            min-width: 150px;
+            max-width: 200px;
+        }
+        
+        .search-item label {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 6px;
+        }
+        
+        .search-item input,
+        .search-item select {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        
+        .search-item input:focus,
+        .search-item select:focus {
+            outline: none;
+            border-color: #1890ff;
+        }
+        
+        .search-item select {
+            background: white;
+            cursor: pointer;
+        }
+        
+        .search-buttons {
+            display: flex;
+            gap: 12px;
+            flex-shrink: 0;
+        }
+        
+        .btn {
+            padding: 8px 20px;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: #1890ff;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #40a9ff;
+        }
+        
+        .btn-reset {
+            background: #fff;
+            color: #666;
+            border: 1px solid #ddd;
+        }
+        
+        .btn-reset:hover {
+            border-color: #1890ff;
+            color: #1890ff;
+        }
+        
+        .table-section {
+            overflow-x: auto;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+        
+        thead {
+            background: #fafafa;
+        }
+        
+        th {
+            padding: 12px;
+            text-align: left;
+            font-weight: 500;
+            color: #333;
+            border-bottom: 1px solid #e8e8e8;
+        }
+        
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #f0f0f0;
+            color: #666;
+        }
+        
+        tbody tr:hover {
+            background: #fafafa;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+        
+        .operation-buttons {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .btn-action {
+            padding: 4px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            background: white;
+            color: #666;
+            transition: all 0.3s;
+        }
+        
+        .btn-action:hover {
+            border-color: #1890ff;
+            color: #1890ff;
+        }
+        
+        .btn-grant {
+            color: #52c41a;
+        }
+        
+        .btn-grant:hover {
+            background: #f6ffed;
+            border-color: #52c41a;
+        }
+        
+        .btn-revoke {
+            color: #ff4d4f;
+        }
+        
+        .btn-revoke:hover {
+            background: #fff1f0;
+            border-color: #ff4d4f;
+        }
+        
+        /* 弹窗样式 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal.show {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 8px;
+            padding: 24px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .modal-title {
+            font-size: 18px;
+            font-weight: 500;
+            color: #333;
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: #999;
+            cursor: pointer;
+            padding: 0;
+            width: 24px;
+            height: 24px;
+            line-height: 24px;
+        }
+        
+        .modal-close:hover {
+            color: #333;
+        }
+        
+        .modal-form {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        
+        .form-item {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .form-item label {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 6px;
+        }
+        
+        .form-item input,
+        .form-item select {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        .form-item input:focus,
+        .form-item select:focus {
+            outline: none;
+            border-color: #1890ff;
+        }
+        
+        .form-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 8px;
+        }
+        
+        /* 资源树样式 */
+        .resource-tree {
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            max-height: 400px;
+            overflow-y: auto;
+            padding: 8px;
+            background: #fafafa;
+        }
+        
+        .tree-node {
+            margin: 4px 0;
+        }
+        
+        .tree-node-content {
+            display: flex;
+            align-items: center;
+            padding: 4px 8px;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+        
+        .tree-node-content:hover {
+            background: #e6f7ff;
+        }
+        
+        .tree-toggle {
+            width: 16px;
+            height: 16px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 4px;
+            cursor: pointer;
+            color: #666;
+            font-size: 12px;
+        }
+        
+        .tree-toggle:hover {
+            color: #1890ff;
+        }
+        
+        .tree-checkbox {
+            margin-right: 6px;
+            cursor: pointer;
+        }
+        
+        .tree-label {
+            flex: 1;
+            font-size: 14px;
+            color: #333;
+        }
+        
+        .tree-children {
+            margin-left: 20px;
+            display: none;
+        }
+        
+        .tree-children.expanded {
+            display: block;
+        }
+        
+        .tree-node.leaf .tree-toggle {
+            visibility: hidden;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>用户-资源配置</h1>
+        
+        <div class="search-section">
+            <div class="search-title">搜索条件</div>
+            <form class="search-form" id="searchForm">
+                <div class="search-item">
+                    <label>用户ID</label>
+                    <input type="text" id="searchUserId" placeholder="请输入用户ID">
+                </div>
+                <div class="search-item">
+                    <label>用户名称</label>
+                    <input type="text" id="searchUserName" placeholder="请输入用户名称">
+                </div>
+                <div class="search-item">
+                    <label>用户类型</label>
+                    <select id="searchUserType">
+                        <option value="">全部</option>
+                        <option value="管理员">管理员</option>
+                        <option value="普通用户">普通用户</option>
+                        <option value="访客">访客</option>
+                    </select>
+                </div>
+                <div class="search-item">
+                    <label>用户账号</label>
+                    <input type="text" id="searchUserAccount" placeholder="请输入用户账号">
+                </div>
+                <div class="search-buttons">
+                    <button type="button" class="btn btn-primary" onclick="handleSearch()">搜索</button>
+                    <button type="button" class="btn btn-reset" onclick="handleReset()">重置</button>
+                </div>
+            </form>
+        </div>
+        
+        <div class="table-section">
+            <table>
+                <thead>
+                    <tr>
+                        <th>用户ID</th>
+                        <th>用户名称</th>
+                        <th>用户类型</th>
+                        <th>用户账号</th>
+                        <th>资源操作</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                    <!-- 数据将通过JavaScript动态生成 -->
+                </tbody>
+            </table>
+            <div id="emptyState" class="empty-state" style="display: none;">
+                暂无数据
+            </div>
+        </div>
+    </div>
+    
+    <!-- 赋资源弹窗 -->
+    <div id="grantModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">赋资源</div>
+                <button type="button" class="modal-close" onclick="closeGrantModal()">&times;</button>
+            </div>
+            <form class="modal-form" id="grantForm" onsubmit="handleSubmitGrant(event)">
+                <input type="hidden" id="grantUserId" value="">
+                <div class="form-item">
+                    <label>资源域 <span style="color: red;">*</span></label>
+                    <select id="grantDomain" required onchange="handleGrantDomainChange()">
+                        <option value="">请选择资源域</option>
+                    </select>
+                </div>
+                <div class="form-item">
+                    <label>选择资源</label>
+                    <div class="resource-tree" id="grantresourceTree">
+                        <div style="padding: 20px; text-align: center; color: #999;">请先选择资源域</div>
+                    </div>
+                </div>
+                <div class="form-buttons">
+                    <button type="button" class="btn btn-reset" onclick="closeGrantModal()">取消</button>
+                    <button type="submit" class="btn btn-primary">保存</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- 除资源弹窗 -->
+    <div id="revokeModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">除资源</div>
+                <button type="button" class="modal-close" onclick="closeRevokeModal()">&times;</button>
+            </div>
+            <form class="modal-form" id="revokeForm" onsubmit="handleSubmitRevoke(event)">
+                <input type="hidden" id="revokeUserId" value="">
+                <div class="form-item">
+                    <label>资源域 <span style="color: red;">*</span></label>
+                    <select id="revokeDomain" required onchange="handleRevokeDomainChange()">
+                        <option value="">请选择资源域</option>
+                    </select>
+                </div>
+                <div class="form-item">
+                    <label>选择资源</label>
+                    <div class="resource-tree" id="revokeresourceTree">
+                        <div style="padding: 20px; text-align: center; color: #999;">请先选择资源域</div>
+                    </div>
+                </div>
+                <div class="form-buttons">
+                    <button type="button" class="btn btn-reset" onclick="closeRevokeModal()">取消</button>
+                    <button type="submit" class="btn btn-primary">保存</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        // 示例数据
+        let allUsers = [
+            {
+                id: '1',
+                name: '张三',
+                type: '管理员',
+                account: 'zhangsan'
+            },
+            {
+                id: '2',
+                name: '李四',
+                type: '普通用户',
+                account: 'lisi'
+            },
+            {
+                id: '3',
+                name: '王五',
+                type: '普通用户',
+                account: 'wangwu'
+            },
+            {
+                id: '4',
+                name: '赵六',
+                type: '访客',
+                account: 'zhaoliu'
+            },
+            {
+                id: '5',
+                name: '钱七',
+                type: '管理员',
+                account: 'qianqi'
+            },
+            {
+                id: '6',
+                name: '孙八',
+                type: '普通用户',
+                account: 'sunba'
+            }
+        ];
+        
+        let filteredUsers = [...allUsers];
+        
+        // 资源数据（从资源管理页面复制）
+        let allresources = [
+            // 数据分析域 - 形成层级关系
+            {
+                id: '1',
+                domain: '数据分析',
+                name: '数据分析',
+                code: 'data:analysis',
+                creator: '张三',
+                createTime: '2024-01-10 10:00:00',
+                modifier: '张三',
+                modifyTime: '2024-01-10 10:00:00'
+            },
+            {
+                id: '2',
+                domain: '数据分析',
+                name: '客户访问统计',
+                code: 'data:customer:visit',
+                parentId: '1',
+                creator: '张三',
+                createTime: '2024-01-15 10:30:00',
+                modifier: '张三',
+                modifyTime: '2024-01-15 10:30:00'
+            },
+            {
+                id: '3',
+                domain: '数据分析',
+                name: '销售数据分析',
+                code: 'data:sales:analysis',
+                parentId: '1',
+                creator: '李四',
+                createTime: '2024-01-16 14:20:00',
+                modifier: '王五',
+                modifyTime: '2024-01-20 09:15:00'
+            },
+            {
+                id: '4',
+                domain: '数据分析',
+                name: '用户行为分析',
+                code: 'data:user:behavior',
+                parentId: '1',
+                creator: '李四',
+                createTime: '2024-01-17 09:00:00',
+                modifier: '李四',
+                modifyTime: '2024-01-17 09:00:00'
+            },
+            {
+                id: '5',
+                domain: '数据分析',
+                name: '客户访问日报',
+                code: 'data:customer:visit:daily',
+                parentId: '2',
+                creator: '张三',
+                createTime: '2024-01-18 10:00:00',
+                modifier: '张三',
+                modifyTime: '2024-01-18 10:00:00'
+            },
+            {
+                id: '6',
+                domain: '数据分析',
+                name: '客户访问周报',
+                code: 'data:customer:visit:weekly',
+                parentId: '2',
+                creator: '张三',
+                createTime: '2024-01-19 10:00:00',
+                modifier: '张三',
+                modifyTime: '2024-01-19 10:00:00'
+            },
+            {
+                id: '7',
+                domain: '数据分析',
+                name: '销售数据月报',
+                code: 'data:sales:monthly',
+                parentId: '3',
+                creator: '李四',
+                createTime: '2024-01-20 10:00:00',
+                modifier: '李四',
+                modifyTime: '2024-01-20 10:00:00'
+            },
+            {
+                id: '8',
+                domain: '数据分析',
+                name: '销售数据年报',
+                code: 'data:sales:yearly',
+                parentId: '3',
+                creator: '李四',
+                createTime: '2024-01-21 10:00:00',
+                modifier: '李四',
+                modifyTime: '2024-01-21 10:00:00'
+            },
+            // 报表管理域
+            {
+                id: '9',
+                domain: '报表管理',
+                name: '财务报表',
+                code: 'report:financial',
+                creator: '张三',
+                createTime: '2024-01-17 11:00:00',
+                modifier: '张三',
+                modifyTime: '2024-01-17 11:00:00'
+            },
+            {
+                id: '10',
+                domain: '报表管理',
+                name: '运营报表',
+                code: 'report:operation',
+                creator: '李四',
+                createTime: '2024-01-18 15:45:00',
+                modifier: '李四',
+                modifyTime: '2024-01-18 15:45:00'
+            },
+            // 数据分析域 - 平级资源（与"数据分析"平级）
+            {
+                id: '13',
+                domain: '数据分析',
+                name: '数据导出',
+                code: 'data:export',
+                creator: '张三',
+                createTime: '2024-01-22 10:00:00',
+                modifier: '张三',
+                modifyTime: '2024-01-22 10:00:00'
+            },
+            {
+                id: '14',
+                domain: '数据分析',
+                name: '数据可视化',
+                code: 'data:visualization',
+                creator: '李四',
+                createTime: '2024-01-23 14:30:00',
+                modifier: '李四',
+                modifyTime: '2024-01-23 14:30:00'
+            },
+            // 内容管理域
+            {
+                id: '11',
+                domain: '内容管理',
+                name: '文章管理',
+                code: 'content:article',
+                creator: '王五',
+                createTime: '2024-01-19 09:30:00',
+                modifier: '王五',
+                modifyTime: '2024-01-19 09:30:00'
+            },
+            {
+                id: '12',
+                domain: '内容管理',
+                name: '视频管理',
+                code: 'content:video',
+                creator: '张三',
+                createTime: '2024-01-20 16:20:00',
+                modifier: '李四',
+                modifyTime: '2024-01-21 10:10:00'
+            }
+        ];
+        
+        // 用户-资源关联关系 { userId: [resourceId1, resourceId2, ...] }
+        let userresources = {};
+        
+        // 渲染表格
+        function renderTable(users) {
+            const tbody = document.getElementById('tableBody');
+            const emptyState = document.getElementById('emptyState');
+            
+            if (users.length === 0) {
+                tbody.innerHTML = '';
+                emptyState.style.display = 'block';
+                return;
+            }
+            
+            emptyState.style.display = 'none';
+            tbody.innerHTML = users.map(user => `
+                <tr>
+                    <td>${user.id}</td>
+                    <td>${user.name}</td>
+                    <td>${user.type}</td>
+                    <td>${user.account}</td>
+                    <td>
+                        <div class="operation-buttons">
+                            <button type="button" class="btn-action btn-grant" onclick="handleGrant('${user.id}')">赋资源</button>
+                            <button type="button" class="btn-action btn-revoke" onclick="handleRevoke('${user.id}')">除资源</button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+        
+        // 搜索功能
+        function handleSearch() {
+            const searchUserId = document.getElementById('searchUserId').value.trim();
+            const searchUserName = document.getElementById('searchUserName').value.trim();
+            const searchUserType = document.getElementById('searchUserType').value;
+            const searchUserAccount = document.getElementById('searchUserAccount').value.trim();
+            
+            filteredUsers = allUsers.filter(user => {
+                const matchId = !searchUserId || user.id.includes(searchUserId);
+                const matchName = !searchUserName || user.name.includes(searchUserName);
+                const matchType = !searchUserType || user.type === searchUserType;
+                const matchAccount = !searchUserAccount || user.account.includes(searchUserAccount);
+                
+                return matchId && matchName && matchType && matchAccount;
+            });
+            
+            renderTable(filteredUsers);
+        }
+        
+        // 重置功能
+        function handleReset() {
+            document.getElementById('searchUserId').value = '';
+            document.getElementById('searchUserName').value = '';
+            document.getElementById('searchUserType').value = '';
+            document.getElementById('searchUserAccount').value = '';
+            
+            filteredUsers = [...allUsers];
+            renderTable(filteredUsers);
+        }
+        
+        // 构建资源树结构
+        function buildresourceTree(domain = null, resourceIds = null) {
+            // 根据域过滤资源
+            let filteredresources = domain 
+                ? allresources.filter(p => p.domain === domain)
+                : allresources;
+            
+            // 如果指定了资源ID列表，只显示这些资源
+            if (resourceIds && resourceIds.length > 0) {
+                filteredresources = filteredresources.filter(p => resourceIds.includes(p.id));
+            }
+            
+            if (filteredresources.length === 0) {
+                return [];
+            }
+            
+            // 创建资源映射
+            const resourceMap = {};
+            filteredresources.forEach(p => {
+                resourceMap[p.id] = { ...p, children: [] };
+            });
+            
+            // 构建树结构
+            const rootNodes = [];
+            filteredresources.forEach(p => {
+                const node = resourceMap[p.id];
+                if (p.parentId && resourceMap[p.parentId]) {
+                    resourceMap[p.parentId].children.push(node);
+                } else {
+                    rootNodes.push(node);
+                }
+            });
+            
+            return rootNodes;
+        }
+        
+        // 获取节点的所有后代ID
+        function getAllDescendantIds(node) {
+            const ids = [];
+            if (node.children && node.children.length > 0) {
+                node.children.forEach(child => {
+                    ids.push(child.id);
+                    ids.push(...getAllDescendantIds(child));
+                });
+            }
+            return ids;
+        }
+        
+        // 从资源列表中查找节点并获取所有后代ID
+        function getAllDescendantIdsFromList(resourceId, allresources) {
+            const resource = allresources.find(p => p.id === resourceId);
+            if (!resource) return [];
+            
+            const resourceMap = {};
+            allresources.forEach(p => {
+                resourceMap[p.id] = { ...p, children: [] };
+            });
+            
+            allresources.forEach(p => {
+                if (p.parentId && resourceMap[p.parentId]) {
+                    resourceMap[p.parentId].children.push(resourceMap[p.id]);
+                }
+            });
+            
+            const node = resourceMap[resourceId];
+            if (!node) return [];
+            
+            return getAllDescendantIds(node);
+        }
+        
+        // 获取节点的所有父节点ID
+        function getAllParentIds(resourceId, allresources) {
+            const ids = [];
+            let current = allresources.find(p => p.id === resourceId);
+            while (current && current.parentId) {
+                ids.push(current.parentId);
+                current = allresources.find(p => p.id === current.parentId);
+            }
+            return ids;
+        }
+        
+        // 渲染多选资源树节点
+        function renderMultiSelectTreeNode(node, level = 0, containerId, selectedIds = []) {
+            const hasChildren = node.children && node.children.length > 0;
+            const nodeDiv = document.createElement('div');
+            nodeDiv.className = 'tree-node' + (hasChildren ? '' : ' leaf');
+            nodeDiv.dataset.nodeId = node.id;
+            
+            const isChecked = selectedIds.includes(node.id);
+            
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'tree-node-content';
+            
+            // 展开/折叠按钮
+            const toggleSpan = document.createElement('span');
+            toggleSpan.className = 'tree-toggle';
+            if (hasChildren) {
+                toggleSpan.textContent = '▶';
+                toggleSpan.onclick = function(e) {
+                    e.stopPropagation();
+                    toggleTreeNode(nodeDiv);
+                };
+            }
+            
+            // 多选框
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.className = 'tree-checkbox';
+            checkbox.value = node.id;
+            checkbox.checked = isChecked;
+            checkbox.onclick = function(e) {
+                e.stopPropagation();
+                handleCheckboxChange(node.id, checkbox.checked, containerId);
+            };
+            
+            // 标签
+            const label = document.createElement('span');
+            label.className = 'tree-label';
+            label.textContent = `${node.name} (${node.code})`;
+            label.onclick = function(e) {
+                if (e.target !== checkbox) {
+                    checkbox.checked = !checkbox.checked;
+                    handleCheckboxChange(node.id, checkbox.checked, containerId);
+                }
+            };
+            
+            contentDiv.appendChild(toggleSpan);
+            contentDiv.appendChild(checkbox);
+            contentDiv.appendChild(label);
+            
+            nodeDiv.appendChild(contentDiv);
+            
+            // 子节点
+            if (hasChildren) {
+                const childrenDiv = document.createElement('div');
+                childrenDiv.className = 'tree-children';
+                node.children.forEach(child => {
+                    childrenDiv.appendChild(renderMultiSelectTreeNode(child, level + 1, containerId, selectedIds));
+                });
+                nodeDiv.appendChild(childrenDiv);
+            }
+            
+            return nodeDiv;
+        }
+        
+        // 切换树节点展开/折叠
+        function toggleTreeNode(nodeDiv) {
+            const children = nodeDiv.querySelector('.tree-children');
+            const toggle = nodeDiv.querySelector('.tree-toggle');
+            if (children) {
+                children.classList.toggle('expanded');
+                toggle.textContent = children.classList.contains('expanded') ? '▼' : '▶';
+            }
+        }
+        
+        // 处理复选框变化（父子联动）
+        function handleCheckboxChange(resourceId, checked, containerId) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            
+            // 如果选中，需要选中所有父节点
+            if (checked) {
+                const parentIds = getAllParentIds(resourceId, allresources);
+                parentIds.forEach(parentId => {
+                    const parentCheckbox = container.querySelector(`input[type="checkbox"][value="${parentId}"]`);
+                    if (parentCheckbox && !parentCheckbox.checked) {
+                        parentCheckbox.checked = true;
+                    }
+                });
+            } else {
+                // 如果取消选中，需要取消选中所有子节点
+                const descendantIds = getAllDescendantIdsFromList(resourceId, allresources);
+                descendantIds.forEach(descendantId => {
+                    const descendantCheckbox = container.querySelector(`input[type="checkbox"][value="${descendantId}"]`);
+                    if (descendantCheckbox && descendantCheckbox.checked) {
+                        descendantCheckbox.checked = false;
+                    }
+                });
+            }
+        }
+        
+        // 获取容器中所有选中的资源ID
+        function getSelectedresourceIds(containerId) {
+            const container = document.getElementById(containerId);
+            if (!container) return [];
+            
+            const checkboxes = container.querySelectorAll('input[type="checkbox"]:checked');
+            return Array.from(checkboxes).map(cb => cb.value);
+        }
+        
+        // 初始化资源域下拉框
+        function initDomainSelect(selectId) {
+            const domainSelect = document.getElementById(selectId);
+            if (!domainSelect) return;
+            
+            domainSelect.innerHTML = '<option value="">请选择资源域</option>';
+            const domains = [...new Set(allresources.map(p => p.domain))].sort();
+            domains.forEach(domain => {
+                const option = document.createElement('option');
+                option.value = domain;
+                option.textContent = domain;
+                domainSelect.appendChild(option);
+            });
+        }
+        
+        // 赋资源操作
+        function handleGrant(userId) {
+            const modal = document.getElementById('grantModal');
+            document.getElementById('grantUserId').value = userId;
+            
+            // 初始化资源域下拉框
+            initDomainSelect('grantDomain');
+            
+            // 清空资源树
+            const treeContainer = document.getElementById('grantresourceTree');
+            treeContainer.innerHTML = '<div style="padding: 20px; text-align: center; color: #999;">请先选择资源域</div>';
+            
+            modal.classList.add('show');
+        }
+        
+        // 资源域变化（赋资源）
+        function handleGrantDomainChange() {
+            const domain = document.getElementById('grantDomain').value;
+            const treeContainer = document.getElementById('grantresourceTree');
+            const userId = document.getElementById('grantUserId').value;
+            
+            if (!domain) {
+                treeContainer.innerHTML = '<div style="padding: 20px; text-align: center; color: #999;">请先选择资源域</div>';
+                return;
+            }
+            
+            // 获取该用户已拥有的资源（用于预选中）
+            const userresourceIds = userresources[userId] || [];
+            
+            // 构建资源树
+            const tree = buildresourceTree(domain);
+            treeContainer.innerHTML = '';
+            
+            if (tree.length > 0) {
+                tree.forEach(rootNode => {
+                    // 只显示该域下的资源，并预选中已拥有的资源
+                    const domainresourceIds = allresources
+                        .filter(p => p.domain === domain)
+                        .map(p => p.id);
+                    const selectedIds = userresourceIds.filter(id => domainresourceIds.includes(id));
+                    treeContainer.appendChild(renderMultiSelectTreeNode(rootNode, 0, 'grantresourceTree', selectedIds));
+                });
+            } else {
+                treeContainer.innerHTML = '<div style="padding: 20px; text-align: center; color: #999;">该域下暂无资源数据</div>';
+            }
+        }
+        
+        // 提交赋资源
+        function handleSubmitGrant(event) {
+            event.preventDefault();
+            
+            const userId = document.getElementById('grantUserId').value;
+            const domain = document.getElementById('grantDomain').value;
+            const selectedIds = getSelectedresourceIds('grantresourceTree');
+            
+            if (!userId || !domain) {
+                alert('请选择资源域');
+                return;
+            }
+            
+            if (selectedIds.length === 0) {
+                alert('请至少选择一个资源');
+                return;
+            }
+            
+            // 保存用户资源
+            if (!userresources[userId]) {
+                userresources[userId] = [];
+            }
+            
+            // 合并资源（去重）
+            const domainresourceIds = allresources
+                .filter(p => p.domain === domain)
+                .map(p => p.id);
+            
+            // 移除该域下原有的资源
+            userresources[userId] = userresources[userId].filter(id => !domainresourceIds.includes(id));
+            
+            // 添加新选中的资源
+            userresources[userId] = [...userresources[userId], ...selectedIds];
+            
+            closeGrantModal();
+            alert('赋资源成功');
+        }
+        
+        // 关闭赋资源弹窗
+        function closeGrantModal() {
+            const modal = document.getElementById('grantModal');
+            modal.classList.remove('show');
+            document.getElementById('grantForm').reset();
+            document.getElementById('grantUserId').value = '';
+        }
+        
+        // 除资源操作
+        function handleRevoke(userId) {
+            const modal = document.getElementById('revokeModal');
+            document.getElementById('revokeUserId').value = userId;
+            
+            // 初始化资源域下拉框
+            initDomainSelect('revokeDomain');
+            
+            // 清空资源树
+            const treeContainer = document.getElementById('revokeresourceTree');
+            treeContainer.innerHTML = '<div style="padding: 20px; text-align: center; color: #999;">请先选择资源域</div>';
+            
+            modal.classList.add('show');
+        }
+        
+        // 资源域变化（除资源）
+        function handleRevokeDomainChange() {
+            const domain = document.getElementById('revokeDomain').value;
+            const treeContainer = document.getElementById('revokeresourceTree');
+            const userId = document.getElementById('revokeUserId').value;
+            
+            if (!domain) {
+                treeContainer.innerHTML = '<div style="padding: 20px; text-align: center; color: #999;">请先选择资源域</div>';
+                return;
+            }
+            
+            // 获取该用户已拥有的资源
+            const userresourceIds = userresources[userId] || [];
+            
+            // 只显示该域下已拥有的资源
+            const domainresourceIds = allresources
+                .filter(p => p.domain === domain)
+                .map(p => p.id);
+            const ownedresourceIds = userresourceIds.filter(id => domainresourceIds.includes(id));
+            
+            if (ownedresourceIds.length === 0) {
+                treeContainer.innerHTML = '<div style="padding: 20px; text-align: center; color: #999;">该域下暂无已赋资源的资源</div>';
+                return;
+            }
+            
+            // 构建资源树（只显示已拥有的资源）
+            const tree = buildresourceTree(domain, ownedresourceIds);
+            treeContainer.innerHTML = '';
+            
+            if (tree.length > 0) {
+                tree.forEach(rootNode => {
+                    // 预选中所有已拥有的资源
+                    treeContainer.appendChild(renderMultiSelectTreeNode(rootNode, 0, 'revokeresourceTree', ownedresourceIds));
+                });
+            } else {
+                treeContainer.innerHTML = '<div style="padding: 20px; text-align: center; color: #999;">该域下暂无已赋资源的资源</div>';
+            }
+        }
+        
+        // 提交除资源
+        function handleSubmitRevoke(event) {
+            event.preventDefault();
+            
+            const userId = document.getElementById('revokeUserId').value;
+            const domain = document.getElementById('revokeDomain').value;
+            const selectedIds = getSelectedresourceIds('revokeresourceTree');
+            
+            if (!userId || !domain) {
+                alert('请选择资源域');
+                return;
+            }
+            
+            if (selectedIds.length === 0) {
+                alert('请至少选择一个资源');
+                return;
+            }
+            
+            // 移除选中的资源
+            if (userresources[userId]) {
+                userresources[userId] = userresources[userId].filter(id => !selectedIds.includes(id));
+            }
+            
+            closeRevokeModal();
+            alert('除资源成功');
+        }
+        
+        // 关闭除资源弹窗
+        function closeRevokeModal() {
+            const modal = document.getElementById('revokeModal');
+            modal.classList.remove('show');
+            document.getElementById('revokeForm').reset();
+            document.getElementById('revokeUserId').value = '';
+        }
+        
+        // 回车搜索
+        document.getElementById('searchForm').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                handleSearch();
+            }
+        });
+        
+        // 初始化渲染
+        renderTable(filteredUsers);
+    </script>
+</body>
+</html>
+

@@ -391,7 +391,7 @@
         }
         
         /* 资源树样式 */
-        .permission-tree {
+        .resource-tree {
             border: 1px solid #ddd;
             border-radius: 4px;
             max-height: 300px;
@@ -551,8 +551,8 @@
                 <div class="modal-title">新建资源</div>
                 <button type="button" class="modal-close" onclick="closeNewModal()">&times;</button>
             </div>
-            <form class="modal-form" id="newPermissionForm" onsubmit="handleSubmitNew(event)">
-                <input type="hidden" id="editingPermissionId" value="">
+            <form class="modal-form" id="newresourceForm" onsubmit="handleSubmitNew(event)">
+                <input type="hidden" id="editingresourceId" value="">
                 <div class="form-item">
                     <label>资源域 <span style="color: red;">*</span></label>
                     <select id="newDomain" required>
@@ -569,7 +569,7 @@
                 </div>
                 <div class="form-item">
                     <label>关联父资源</label>
-                    <div class="permission-tree" id="parentPermissionTree">
+                    <div class="resource-tree" id="parentresourceTree">
                         <!-- 资源树将通过JavaScript动态生成 -->
                     </div>
                     <input type="hidden" id="selectedParentId">
@@ -592,12 +592,12 @@
             <form class="modal-form" id="linkParentForm" onsubmit="handleSubmitLinkParent(event)">
                 <div class="form-item">
                     <label>当前资源</label>
-                    <input type="text" id="currentPermission" readonly style="background: #f5f5f5;">
-                    <input type="hidden" id="currentPermissionId">
+                    <input type="text" id="currentresource" readonly style="background: #f5f5f5;">
+                    <input type="hidden" id="currentresourceId">
                 </div>
                 <div class="form-item">
                     <label>选择父资源</label>
-                    <div class="permission-tree" id="linkParentPermissionTree">
+                    <div class="resource-tree" id="linkParentresourceTree">
                         <!-- 资源树将通过JavaScript动态生成 -->
                     </div>
                     <input type="hidden" id="linkSelectedParentId">
@@ -621,7 +621,7 @@
                 <button type="button" class="modal-close" onclick="closeViewDomainTreeModal()">&times;</button>
             </div>
             <div class="form-item">
-                <div class="permission-tree" id="viewDomainTreeContainer" style="max-height: 500px;">
+                <div class="resource-tree" id="viewDomainTreeContainer" style="max-height: 500px;">
                     <!-- 树形结构将通过JavaScript动态生成 -->
                 </div>
             </div>
@@ -633,7 +633,7 @@
     
     <script>
         // 示例数据
-        let allPermissions = [
+        let allresources = [
             // 数据分析域 - 形成层级关系
             {
                 id: '1',
@@ -787,38 +787,38 @@
             }
         ];
         
-        let filteredPermissions = [...allPermissions];
+        let filteredresources = [...allresources];
         
         // 渲染表格
-        function renderTable(permissions) {
+        function renderTable(resources) {
             const tbody = document.getElementById('tableBody');
             const emptyState = document.getElementById('emptyState');
             
-            if (permissions.length === 0) {
+            if (resources.length === 0) {
                 tbody.innerHTML = '';
                 emptyState.style.display = 'block';
                 return;
             }
             
             emptyState.style.display = 'none';
-            tbody.innerHTML = permissions.map(permission => `
+            tbody.innerHTML = resources.map(resource => `
                 <tr>
-                    <td>${permission.id}</td>
-                    <td>${permission.domain}</td>
-                    <td>${permission.name}</td>
-                    <td>${permission.code}</td>
+                    <td>${resource.id}</td>
+                    <td>${resource.domain}</td>
+                    <td>${resource.name}</td>
+                    <td>${resource.code}</td>
                     <td>
                         <div class="operation-info">
-                            <div class="operation-info-item">创建人：${permission.creator}</div>
-                            <div class="operation-info-item">创建时间：${permission.createTime}</div>
-                            <div class="operation-info-item">修改人：${permission.modifier}</div>
-                            <div class="operation-info-item">修改时间：${permission.modifyTime}</div>
+                            <div class="operation-info-item">创建人：${resource.creator}</div>
+                            <div class="operation-info-item">创建时间：${resource.createTime}</div>
+                            <div class="operation-info-item">修改人：${resource.modifier}</div>
+                            <div class="operation-info-item">修改时间：${resource.modifyTime}</div>
                         </div>
                     </td>
                     <td>
                         <div class="operation-buttons">
-                            <button type="button" class="btn-action btn-edit" onclick="handleEdit('${permission.id}')">修改</button>
-                            <button type="button" class="btn-action btn-delete" onclick="handleDelete('${permission.id}')">删除</button>
+                            <button type="button" class="btn-action btn-edit" onclick="handleEdit('${resource.id}')">修改</button>
+                            <button type="button" class="btn-action btn-delete" onclick="handleDelete('${resource.id}')">删除</button>
                         </div>
                     </td>
                 </tr>
@@ -829,7 +829,7 @@
         function initDomainSelect() {
             const domainSelect = document.getElementById('searchDomain');
             const viewDomainTreeBtn = document.getElementById('viewDomainTreeBtn');
-            const domains = [...new Set(allPermissions.map(p => p.domain))].sort();
+            const domains = [...new Set(allresources.map(p => p.domain))].sort();
             
             domains.forEach(domain => {
                 const option = document.createElement('option');
@@ -855,16 +855,16 @@
             const searchName = document.getElementById('searchName').value.trim();
             const searchCode = document.getElementById('searchCode').value.trim();
             
-            filteredPermissions = allPermissions.filter(permission => {
-                const matchId = !searchId || permission.id.includes(searchId);
-                const matchDomain = !searchDomain || permission.domain === searchDomain;
-                const matchName = !searchName || permission.name.includes(searchName);
-                const matchCode = !searchCode || permission.code.includes(searchCode);
+            filteredresources = allresources.filter(resource => {
+                const matchId = !searchId || resource.id.includes(searchId);
+                const matchDomain = !searchDomain || resource.domain === searchDomain;
+                const matchName = !searchName || resource.name.includes(searchName);
+                const matchCode = !searchCode || resource.code.includes(searchCode);
                 
                 return matchId && matchDomain && matchName && matchCode;
             });
             
-            renderTable(filteredPermissions);
+            renderTable(filteredresources);
         }
         
         // 重置功能
@@ -874,19 +874,19 @@
             document.getElementById('searchName').value = '';
             document.getElementById('searchCode').value = '';
             
-            filteredPermissions = [...allPermissions];
-            renderTable(filteredPermissions);
+            filteredresources = [...allresources];
+            renderTable(filteredresources);
         }
         
         // 修改功能
         function handleEdit(id) {
-            const permission = allPermissions.find(p => p.id === id);
-            if (!permission) return;
+            const resource = allresources.find(p => p.id === id);
+            if (!resource) return;
             
             const modal = document.getElementById('newModal');
             const modalTitle = modal.querySelector('.modal-title');
             const newDomainSelect = document.getElementById('newDomain');
-            const editingIdInput = document.getElementById('editingPermissionId');
+            const editingIdInput = document.getElementById('editingresourceId');
             
             // 设置编辑模式
             editingIdInput.value = id;
@@ -894,12 +894,12 @@
             
             // 填充域下拉框
             newDomainSelect.innerHTML = '<option value="">请选择资源域</option>';
-            const domains = [...new Set(allPermissions.map(p => p.domain))].sort();
+            const domains = [...new Set(allresources.map(p => p.domain))].sort();
             domains.forEach(domain => {
                 const option = document.createElement('option');
                 option.value = domain;
                 option.textContent = domain;
-                if (domain === permission.domain) {
+                if (domain === resource.domain) {
                     option.selected = true;
                 }
                 newDomainSelect.appendChild(option);
@@ -909,17 +909,17 @@
             newDomainSelect.disabled = true;
             
             // 回填数据
-            document.getElementById('newName').value = permission.name;
-            document.getElementById('newCode').value = permission.code;
-            document.getElementById('selectedParentId').value = permission.parentId || '';
+            document.getElementById('newName').value = resource.name;
+            document.getElementById('newCode').value = resource.code;
+            document.getElementById('selectedParentId').value = resource.parentId || '';
             
             // 更新资源树（传入当前资源ID，用于禁用自身和子节点）
-            updatePermissionTree(permission.domain, id);
+            updateresourceTree(resource.domain, id);
             
             // 如果有父资源，选中它
-            if (permission.parentId) {
+            if (resource.parentId) {
                 setTimeout(() => {
-                    selectTreeNode(permission.parentId, 'parentPermissionTree');
+                    selectTreeNode(resource.parentId, 'parentresourceTree');
                 }, 100);
             }
             
@@ -928,41 +928,41 @@
         
         // 删除功能
         function handleDelete(id) {
-            const permission = allPermissions.find(p => p.id === id);
-            if (permission) {
-                if (confirm(`确定要删除资源"${permission.name}"吗？`)) {
-                    allPermissions = allPermissions.filter(p => p.id !== id);
-                    filteredPermissions = filteredPermissions.filter(p => p.id !== id);
-                    renderTable(filteredPermissions);
+            const resource = allresources.find(p => p.id === id);
+            if (resource) {
+                if (confirm(`确定要删除资源"${resource.name}"吗？`)) {
+                    allresources = allresources.filter(p => p.id !== id);
+                    filteredresources = filteredresources.filter(p => p.id !== id);
+                    renderTable(filteredresources);
                     alert('删除成功');
                 }
             }
         }
         
         // 构建资源树结构
-        function buildPermissionTree(domain = null) {
+        function buildresourceTree(domain = null) {
             // 根据域过滤资源
-            const filteredPermissions = domain 
-                ? allPermissions.filter(p => p.domain === domain)
-                : allPermissions;
+            const filteredresources = domain 
+                ? allresources.filter(p => p.domain === domain)
+                : allresources;
             
-            if (filteredPermissions.length === 0) {
+            if (filteredresources.length === 0) {
                 return [];
             }
             
             // 创建资源映射（只包含过滤后的资源）
-            const permissionMap = {};
-            filteredPermissions.forEach(p => {
-                permissionMap[p.id] = { ...p, children: [] };
+            const resourceMap = {};
+            filteredresources.forEach(p => {
+                resourceMap[p.id] = { ...p, children: [] };
             });
             
             // 构建树结构（只考虑过滤后的资源之间的父子关系）
             const rootNodes = [];
-            filteredPermissions.forEach(p => {
-                const node = permissionMap[p.id];
-                if (p.parentId && permissionMap[p.parentId]) {
+            filteredresources.forEach(p => {
+                const node = resourceMap[p.id];
+                if (p.parentId && resourceMap[p.parentId]) {
                     // 只有当父资源也在过滤后的列表中时，才建立父子关系
-                    permissionMap[p.parentId].children.push(node);
+                    resourceMap[p.parentId].children.push(node);
                 } else {
                     rootNodes.push(node);
                 }
@@ -972,8 +972,8 @@
         }
         
         // 更新资源树显示
-        function updatePermissionTree(domain, excludeId = null) {
-            const treeContainer = document.getElementById('parentPermissionTree');
+        function updateresourceTree(domain, excludeId = null) {
+            const treeContainer = document.getElementById('parentresourceTree');
             treeContainer.innerHTML = '';
             
             if (!domain) {
@@ -982,14 +982,14 @@
                 return;
             }
             
-            const tree = buildPermissionTree(domain);
+            const tree = buildresourceTree(domain);
             if (tree.length > 0) {
                 tree.forEach(rootNode => {
                     // 如果是在编辑模式，需要禁用自身节点和子节点
                     if (excludeId) {
-                        treeContainer.appendChild(renderTreeNodeWithDisabledCheck(rootNode, 0, 'parentPermissionTree', excludeId, allPermissions));
+                        treeContainer.appendChild(renderTreeNodeWithDisabledCheck(rootNode, 0, 'parentresourceTree', excludeId, allresources));
                     } else {
-                        treeContainer.appendChild(renderTreeNode(rootNode, 0, 'parentPermissionTree'));
+                        treeContainer.appendChild(renderTreeNode(rootNode, 0, 'parentresourceTree'));
                     }
                 });
             } else {
@@ -1032,7 +1032,7 @@
             // 单选按钮
             const radio = document.createElement('input');
             radio.type = 'radio';
-            radio.name = 'parentPermission';
+            radio.name = 'parentresource';
             radio.className = 'tree-checkbox';
             radio.value = node.id;
             radio.disabled = disabled;
@@ -1082,12 +1082,12 @@
             // 确定要更新的容器
             const container = containerId 
                 ? document.getElementById(containerId)
-                : document.querySelector('.permission-tree');
+                : document.querySelector('.resource-tree');
             
             if (!container) return;
             
             // 如果是关联父资源的树，验证不能选择自身和子节点
-            if (container.id === 'linkParentPermissionTree') {
+            if (container.id === 'linkParentresourceTree') {
                 const excludeId = container.dataset.excludeId;
                 if (excludeId) {
                     // 检查是否是自身
@@ -1097,7 +1097,7 @@
                     }
                     
                     // 检查是否是子节点
-                    const descendantIds = getAllDescendantIdsFromList(excludeId, allPermissions);
+                    const descendantIds = getAllDescendantIdsFromList(excludeId, allresources);
                     if (descendantIds.includes(nodeId)) {
                         alert('不能选择当前资源的子节点作为父资源，避免产生循环依赖');
                         return;
@@ -1106,7 +1106,7 @@
             }
             
             // 更新该容器内的单选按钮
-            const radio = container.querySelector(`input[name="parentPermission"][value="${nodeId}"]`);
+            const radio = container.querySelector(`input[name="parentresource"][value="${nodeId}"]`);
             if (radio) {
                 radio.checked = true;
             }
@@ -1115,9 +1115,9 @@
             const selectedParentIdInput = document.getElementById('selectedParentId');
             const linkSelectedParentIdInput = document.getElementById('linkSelectedParentId');
             
-            if (container.id === 'parentPermissionTree' && selectedParentIdInput) {
+            if (container.id === 'parentresourceTree' && selectedParentIdInput) {
                 selectedParentIdInput.value = nodeId;
-            } else if (container.id === 'linkParentPermissionTree' && linkSelectedParentIdInput) {
+            } else if (container.id === 'linkParentresourceTree' && linkSelectedParentIdInput) {
                 linkSelectedParentIdInput.value = nodeId;
             }
             
@@ -1136,14 +1136,14 @@
             const modal = document.getElementById('newModal');
             const modalTitle = modal.querySelector('.modal-title');
             const newDomainSelect = document.getElementById('newDomain');
-            const editingIdInput = document.getElementById('editingPermissionId');
+            const editingIdInput = document.getElementById('editingresourceId');
             
             // 设置为新建模式
             editingIdInput.value = '';
             modalTitle.textContent = '新建资源';
             
             // 清空表单
-            document.getElementById('newPermissionForm').reset();
+            document.getElementById('newresourceForm').reset();
             document.getElementById('selectedParentId').value = '';
             
             // 启用域下拉框
@@ -1151,7 +1151,7 @@
             
             // 填充域下拉框
             newDomainSelect.innerHTML = '<option value="">请选择资源域</option>';
-            const domains = [...new Set(allPermissions.map(p => p.domain))].sort();
+            const domains = [...new Set(allresources.map(p => p.domain))].sort();
             domains.forEach(domain => {
                 const option = document.createElement('option');
                 option.value = domain;
@@ -1160,12 +1160,12 @@
             });
             
             // 初始显示提示信息
-            const treeContainer = document.getElementById('parentPermissionTree');
+            const treeContainer = document.getElementById('parentresourceTree');
             treeContainer.innerHTML = '<div style="padding: 20px; text-align: center; color: #999;">请先选择资源域</div>';
             
             // 监听域选择变化
             newDomainSelect.onchange = function() {
-                updatePermissionTree(this.value);
+                updateresourceTree(this.value);
             };
             
             modal.classList.add('show');
@@ -1176,8 +1176,8 @@
             const modal = document.getElementById('newModal');
             const newDomainSelect = document.getElementById('newDomain');
             modal.classList.remove('show');
-            document.getElementById('newPermissionForm').reset();
-            document.getElementById('editingPermissionId').value = '';
+            document.getElementById('newresourceForm').reset();
+            document.getElementById('editingresourceId').value = '';
             newDomainSelect.disabled = false;
         }
         
@@ -1185,7 +1185,7 @@
         function handleSubmitNew(event) {
             event.preventDefault();
             
-            const editingId = document.getElementById('editingPermissionId').value;
+            const editingId = document.getElementById('editingresourceId').value;
             const domain = document.getElementById('newDomain').value;
             const name = document.getElementById('newName').value.trim();
             const code = document.getElementById('newCode').value.trim();
@@ -1198,12 +1198,12 @@
             
             // 验证父资源是否与当前资源属于同一域
             if (parentId) {
-                const parentPermission = allPermissions.find(p => p.id === parentId);
-                if (!parentPermission) {
+                const parentresource = allresources.find(p => p.id === parentId);
+                if (!parentresource) {
                     alert('选择的父资源不存在');
                     return;
                 }
-                if (parentPermission.domain !== domain) {
+                if (parentresource.domain !== domain) {
                     alert('父资源必须与当前资源属于同一域');
                     return;
                 }
@@ -1220,8 +1220,8 @@
             
             if (editingId) {
                 // 编辑模式
-                const permission = allPermissions.find(p => p.id === editingId);
-                if (!permission) {
+                const resource = allresources.find(p => p.id === editingId);
+                if (!resource) {
                     alert('资源不存在');
                     return;
                 }
@@ -1232,7 +1232,7 @@
                         alert('不能选择自身作为父资源');
                         return;
                     }
-                    const descendantIds = getAllDescendantIdsFromList(editingId, allPermissions);
+                    const descendantIds = getAllDescendantIdsFromList(editingId, allresources);
                     if (descendantIds.includes(parentId)) {
                         alert('不能选择当前资源的子节点作为父资源，避免产生循环依赖');
                         return;
@@ -1240,21 +1240,21 @@
                 }
                 
                 // 更新资源信息
-                permission.name = name;
-                permission.code = code;
-                permission.parentId = parentId || undefined;
-                permission.modifier = '当前用户';
-                permission.modifyTime = timeStr;
+                resource.name = name;
+                resource.code = code;
+                resource.parentId = parentId || undefined;
+                resource.modifier = '当前用户';
+                resource.modifyTime = timeStr;
                 
-                filteredPermissions = [...allPermissions];
-                renderTable(filteredPermissions);
+                filteredresources = [...allresources];
+                renderTable(filteredresources);
                 initDomainSelect();
                 closeNewModal();
                 alert('修改资源成功');
             } else {
                 // 新建模式
-                const newPermission = {
-                    id: String(allPermissions.length + 1),
+                const newresource = {
+                    id: String(allresources.length + 1),
                     domain: domain,
                     name: name,
                     code: code,
@@ -1265,9 +1265,9 @@
                     modifyTime: timeStr
                 };
                 
-                allPermissions.push(newPermission);
-                filteredPermissions = [...allPermissions];
-                renderTable(filteredPermissions);
+                allresources.push(newresource);
+                filteredresources = [...allresources];
+                renderTable(filteredresources);
                 initDomainSelect();
                 closeNewModal();
                 alert('新建资源成功');
@@ -1307,13 +1307,13 @@
                     const timeStr = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
                     
                     let successCount = 0;
-                    let startId = allPermissions.length + 1;
+                    let startId = allresources.length + 1;
                     
                     // 跳过表头，从第二行开始
                     for (let i = 1; i < lines.length; i++) {
                         const parts = lines[i].split(',').map(p => p.trim());
                         if (parts.length >= 3) {
-                            const newPermission = {
+                            const newresource = {
                                 id: String(startId++),
                                 domain: parts[0],
                                 name: parts[1],
@@ -1323,13 +1323,13 @@
                                 modifier: '当前用户',
                                 modifyTime: timeStr
                             };
-                            allPermissions.push(newPermission);
+                            allresources.push(newresource);
                             successCount++;
                         }
                     }
                     
-                    filteredPermissions = [...allPermissions];
-                    renderTable(filteredPermissions);
+                    filteredresources = [...allresources];
+                    renderTable(filteredresources);
                     initDomainSelect();
                     alert(`成功导入 ${successCount} 条资源`);
                     
@@ -1367,19 +1367,19 @@
         }
         
         // 检查节点是否应该被禁用（是否是当前资源或其子节点）
-        function isNodeDisabled(nodeId, excludeId, allPermissions) {
+        function isNodeDisabled(nodeId, excludeId, allresources) {
             if (nodeId === excludeId) {
                 return true; // 不能选择自身
             }
             
             // 检查是否是当前资源的子节点
-            const descendantIds = getAllDescendantIdsFromList(excludeId, allPermissions);
+            const descendantIds = getAllDescendantIdsFromList(excludeId, allresources);
             return descendantIds.includes(nodeId);
         }
         
         // 渲染树节点（带禁用状态检查）
-        function renderTreeNodeWithDisabledCheck(node, level, containerId, excludeId, allPermissions) {
-            const disabled = isNodeDisabled(node.id, excludeId, allPermissions);
+        function renderTreeNodeWithDisabledCheck(node, level, containerId, excludeId, allresources) {
+            const disabled = isNodeDisabled(node.id, excludeId, allresources);
             const hasChildren = node.children && node.children.length > 0;
             const nodeDiv = document.createElement('div');
             nodeDiv.className = 'tree-node' + (hasChildren ? '' : ' leaf');
@@ -1412,7 +1412,7 @@
             // 单选按钮
             const radio = document.createElement('input');
             radio.type = 'radio';
-            radio.name = 'parentPermission';
+            radio.name = 'parentresource';
             radio.className = 'tree-checkbox';
             radio.value = node.id;
             radio.disabled = disabled;
@@ -1439,7 +1439,7 @@
                 const childrenDiv = document.createElement('div');
                 childrenDiv.className = 'tree-children';
                 node.children.forEach(child => {
-                    childrenDiv.appendChild(renderTreeNodeWithDisabledCheck(child, level + 1, containerId, excludeId, allPermissions));
+                    childrenDiv.appendChild(renderTreeNodeWithDisabledCheck(child, level + 1, containerId, excludeId, allresources));
                 });
                 nodeDiv.appendChild(childrenDiv);
             }
@@ -1449,7 +1449,7 @@
         
         // 更新关联父资源树显示
         function updateLinkParentTree(domain, excludeId, selectedParentId = null) {
-            const treeContainer = document.getElementById('linkParentPermissionTree');
+            const treeContainer = document.getElementById('linkParentresourceTree');
             treeContainer.innerHTML = '';
             
             if (!domain) {
@@ -1459,7 +1459,7 @@
             }
             
             // 构建该域的资源树（不过滤，保留完整树结构）
-            const tree = buildPermissionTree(domain);
+            const tree = buildresourceTree(domain);
             
             // 如果树为空，显示空树提示
             if (tree.length === 0) {
@@ -1469,20 +1469,20 @@
             }
             
             // 将当前资源ID存储到容器上，用于后续验证
-            treeContainer.dataset.currentPermissionId = excludeId;
+            treeContainer.dataset.currentresourceId = excludeId;
             treeContainer.dataset.excludeId = excludeId;
             
             // 渲染完整的树，但禁用当前资源及其子节点
             if (tree.length > 0) {
                 tree.forEach(rootNode => {
-                    treeContainer.appendChild(renderTreeNodeWithDisabledCheck(rootNode, 0, 'linkParentPermissionTree', excludeId, allPermissions));
+                    treeContainer.appendChild(renderTreeNodeWithDisabledCheck(rootNode, 0, 'linkParentresourceTree', excludeId, allresources));
                 });
                 
                 // 如果有选中的父资源，回显选中状态
                 if (selectedParentId) {
                     // 使用 setTimeout 确保 DOM 已经渲染完成
                     setTimeout(() => {
-                        selectTreeNode(selectedParentId, 'linkParentPermissionTree');
+                        selectTreeNode(selectedParentId, 'linkParentresourceTree');
                     }, 50);
                 } else {
                     document.getElementById('linkSelectedParentId').value = '';
@@ -1495,19 +1495,19 @@
         
         // 关联父资源
         function handleLinkParent(id) {
-            const permission = allPermissions.find(p => p.id === id);
-            if (!permission) return;
+            const resource = allresources.find(p => p.id === id);
+            if (!resource) return;
             
             const modal = document.getElementById('linkParentModal');
-            const currentPermissionInput = document.getElementById('currentPermission');
-            const currentPermissionIdInput = document.getElementById('currentPermissionId');
+            const currentresourceInput = document.getElementById('currentresource');
+            const currentresourceIdInput = document.getElementById('currentresourceId');
             
             // 设置当前资源信息
-            currentPermissionInput.value = `${permission.name} (${permission.code})`;
-            currentPermissionIdInput.value = id;
+            currentresourceInput.value = `${resource.name} (${resource.code})`;
+            currentresourceIdInput.value = id;
             
             // 使用与新建资源相同的逻辑来渲染树，并回显已关联的父资源
-            updateLinkParentTree(permission.domain, id, permission.parentId || null);
+            updateLinkParentTree(resource.domain, id, resource.parentId || null);
             
             modal.classList.add('show');
         }
@@ -1529,37 +1529,37 @@
         }
         
         // 从资源列表中查找节点并获取所有后代ID
-        function getAllDescendantIdsFromList(permissionId, allPermissions) {
-            const permission = allPermissions.find(p => p.id === permissionId);
-            if (!permission) return [];
+        function getAllDescendantIdsFromList(resourceId, allresources) {
+            const resource = allresources.find(p => p.id === resourceId);
+            if (!resource) return [];
             
             // 构建树结构来获取所有后代
-            const permissionMap = {};
-            allPermissions.forEach(p => {
-                permissionMap[p.id] = { ...p, children: [] };
+            const resourceMap = {};
+            allresources.forEach(p => {
+                resourceMap[p.id] = { ...p, children: [] };
             });
             
             // 构建树
-            allPermissions.forEach(p => {
-                if (p.parentId && permissionMap[p.parentId]) {
-                    permissionMap[p.parentId].children.push(permissionMap[p.id]);
+            allresources.forEach(p => {
+                if (p.parentId && resourceMap[p.parentId]) {
+                    resourceMap[p.parentId].children.push(resourceMap[p.id]);
                 }
             });
             
-            const node = permissionMap[permissionId];
+            const node = resourceMap[resourceId];
             if (!node) return [];
             
             return getAllDescendantIds(node);
         }
         
         // 过滤树，排除指定节点及其所有子节点
-        function filterTreeExcludingNode(tree, excludeId, allPermissions = null) {
+        function filterTreeExcludingNode(tree, excludeId, allresources = null) {
             const result = [];
             
             // 获取所有需要排除的ID（当前节点及其所有后代）
             const excludeIds = new Set([excludeId]);
-            if (allPermissions) {
-                const descendantIds = getAllDescendantIdsFromList(excludeId, allPermissions);
+            if (allresources) {
+                const descendantIds = getAllDescendantIdsFromList(excludeId, allresources);
                 descendantIds.forEach(id => excludeIds.add(id));
             }
             
@@ -1602,10 +1602,10 @@
         
         // 取消父资源选择
         function clearParentSelection() {
-            const treeContainer = document.getElementById('linkParentPermissionTree');
+            const treeContainer = document.getElementById('linkParentresourceTree');
             
             // 清除所有选中状态
-            treeContainer.querySelectorAll('input[name="parentPermission"]').forEach(radio => {
+            treeContainer.querySelectorAll('input[name="parentresource"]').forEach(radio => {
                 radio.checked = false;
             });
             treeContainer.querySelectorAll('.tree-node-content').forEach(el => {
@@ -1620,16 +1620,16 @@
         function handleSubmitLinkParent(event) {
             event.preventDefault();
             
-            const currentPermissionId = document.getElementById('currentPermissionId').value;
+            const currentresourceId = document.getElementById('currentresourceId').value;
             const parentId = document.getElementById('linkSelectedParentId').value;
             
-            if (!currentPermissionId) {
+            if (!currentresourceId) {
                 alert('资源信息错误');
                 return;
             }
             
-            const permission = allPermissions.find(p => p.id === currentPermissionId);
-            if (!permission) {
+            const resource = allresources.find(p => p.id === currentresourceId);
+            if (!resource) {
                 alert('资源不存在');
                 return;
             }
@@ -1637,7 +1637,7 @@
             // 如果 parentId 为空，表示取消关联
             if (!parentId) {
                 // 取消关联
-                permission.parentId = undefined;
+                resource.parentId = undefined;
                 
                 // 更新修改信息
                 const now = new Date();
@@ -1647,11 +1647,11 @@
                 const hours = String(now.getHours()).padStart(2, '0');
                 const minutes = String(now.getMinutes()).padStart(2, '0');
                 const seconds = String(now.getSeconds()).padStart(2, '0');
-                permission.modifier = '当前用户';
-                permission.modifyTime = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+                resource.modifier = '当前用户';
+                resource.modifyTime = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
                 
-                filteredPermissions = [...allPermissions];
-                renderTable(filteredPermissions);
+                filteredresources = [...allresources];
+                renderTable(filteredresources);
                 closeLinkParentModal();
                 
                 alert('已取消关联父资源');
@@ -1659,33 +1659,33 @@
             }
             
             // 验证不能选择自身
-            if (parentId === currentPermissionId) {
+            if (parentId === currentresourceId) {
                 alert('不能选择自身作为父资源');
                 return;
             }
             
             // 验证父资源是否存在
-            const parentPermission = allPermissions.find(p => p.id === parentId);
-            if (!parentPermission) {
+            const parentresource = allresources.find(p => p.id === parentId);
+            if (!parentresource) {
                 alert('父资源不存在');
                 return;
             }
             
             // 验证父资源是否与当前资源属于同一域
-            if (parentPermission.domain !== permission.domain) {
+            if (parentresource.domain !== resource.domain) {
                 alert('父资源必须与当前资源属于同一域');
                 return;
             }
             
             // 验证不能选择当前资源的子节点（避免循环依赖）
-            const descendantIds = getAllDescendantIdsFromList(currentPermissionId, allPermissions);
+            const descendantIds = getAllDescendantIdsFromList(currentresourceId, allresources);
             if (descendantIds.includes(parentId)) {
                 alert('不能选择当前资源的子节点作为父资源，避免产生循环依赖');
                 return;
             }
             
             // 添加或更新parentId字段
-            permission.parentId = parentId;
+            resource.parentId = parentId;
             
             // 更新修改信息
             const now = new Date();
@@ -1695,14 +1695,14 @@
             const hours = String(now.getHours()).padStart(2, '0');
             const minutes = String(now.getMinutes()).padStart(2, '0');
             const seconds = String(now.getSeconds()).padStart(2, '0');
-            permission.modifier = '当前用户';
-            permission.modifyTime = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+            resource.modifier = '当前用户';
+            resource.modifyTime = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
             
-            filteredPermissions = [...allPermissions];
-            renderTable(filteredPermissions);
+            filteredresources = [...allresources];
+            renderTable(filteredresources);
             closeLinkParentModal();
             
-            alert(`已成功关联父资源：${parentPermission.name}`);
+            alert(`已成功关联父资源：${parentresource.name}`);
         }
         
         // 回车搜索
@@ -1777,7 +1777,7 @@
             treeContainer.innerHTML = '';
             
             // 构建该域的资源树
-            const tree = buildPermissionTree(domain);
+            const tree = buildresourceTree(domain);
             
             if (tree.length > 0) {
                 tree.forEach(rootNode => {
@@ -1798,7 +1798,7 @@
         
         // 初始化渲染
         initDomainSelect();
-        renderTable(filteredPermissions);
+        renderTable(filteredresources);
     </script>
 </body>
 </html>
