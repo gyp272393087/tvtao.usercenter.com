@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>用户-资源配置</title>
+    <title>用户资源详情</title>
     <style>
         * {
             margin: 0;
@@ -26,101 +26,43 @@
             padding: 24px;
         }
         
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+        
         h1 {
             font-size: 24px;
             color: #333;
-            margin-bottom: 24px;
             font-weight: 500;
         }
         
-        .search-section {
-            background: #fafafa;
-            padding: 20px;
-            border-radius: 6px;
-            margin-bottom: 20px;
-        }
-        
-        .search-title {
-            font-size: 16px;
-            color: #333;
-            margin-bottom: 16px;
-            font-weight: 500;
-        }
-        
-        .search-form {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 16px;
-            align-items: flex-end;
-        }
-        
-        .search-item {
-            display: flex;
-            flex-direction: column;
-            flex: 0 0 auto;
-            min-width: 150px;
-            max-width: 200px;
-        }
-        
-        .search-item label {
-            font-size: 14px;
-            color: #666;
-            margin-bottom: 6px;
-        }
-        
-        .search-item input,
-        .search-item select {
-            padding: 8px 12px;
+        .btn-back {
+            padding: 8px 20px;
             border: 1px solid #ddd;
             border-radius: 4px;
             font-size: 14px;
-            transition: border-color 0.3s;
-        }
-        
-        .search-item input:focus,
-        .search-item select:focus {
-            outline: none;
-            border-color: #1890ff;
-        }
-        
-        .search-item select {
+            cursor: pointer;
             background: white;
-            cursor: pointer;
-        }
-        
-        .search-buttons {
-            display: flex;
-            gap: 12px;
-            flex-shrink: 0;
-        }
-        
-        .btn {
-            padding: 8px 20px;
-            border: none;
-            border-radius: 4px;
-            font-size: 14px;
-            cursor: pointer;
+            color: #666;
+            text-decoration: none;
             transition: all 0.3s;
         }
         
-        .btn-primary {
-            background: #1890ff;
-            color: white;
-        }
-        
-        .btn-primary:hover {
-            background: #40a9ff;
-        }
-        
-        .btn-reset {
-            background: #fff;
-            color: #666;
-            border: 1px solid #ddd;
-        }
-        
-        .btn-reset:hover {
+        .btn-back:hover {
             border-color: #1890ff;
             color: #1890ff;
+        }
+        
+        .user-info {
+            background: #fafafa;
+            padding: 16px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            color: #666;
         }
         
         .table-section {
@@ -182,6 +124,15 @@
             color: #1890ff;
         }
         
+        .btn-view {
+            color: #1890ff;
+        }
+        
+        .btn-view:hover {
+            background: #e6f7ff;
+            border-color: #1890ff;
+        }
+        
         .btn-grant {
             color: #52c41a;
         }
@@ -191,11 +142,11 @@
             border-color: #52c41a;
         }
         
-        .btn-revoke {
+        .btn-remove {
             color: #ff4d4f;
         }
         
-        .btn-revoke:hover {
+        .btn-remove:hover {
             background: #fff1f0;
             border-color: #ff4d4f;
         }
@@ -272,20 +223,6 @@
             font-size: 14px;
             color: #666;
             margin-bottom: 6px;
-        }
-        
-        .form-item input,
-        .form-item select {
-            padding: 8px 12px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 14px;
-        }
-        
-        .form-item input:focus,
-        .form-item select:focus {
-            outline: none;
-            border-color: #1890ff;
         }
         
         .form-buttons {
@@ -378,48 +315,24 @@
 </head>
 <body>
     <div class="container">
-        <h1>用户-资源配置</h1>
+        <div class="header">
+            <h1>用户资源详情</h1>
+            <a href="user-management.html" class="btn-back">返回</a>
+        </div>
         
-        <div class="search-section">
-            <div class="search-title">搜索条件</div>
-            <form class="search-form" id="searchForm">
-                <div class="search-item">
-                    <label>用户ID</label>
-                    <input type="text" id="searchUserId" placeholder="请输入用户ID">
-                </div>
-                <div class="search-item">
-                    <label>用户名称</label>
-                    <input type="text" id="searchUserName" placeholder="请输入用户名称">
-                </div>
-                <div class="search-item">
-                    <label>用户类型</label>
-                    <select id="searchUserType">
-                        <option value="">全部</option>
-                        <option value="管理员">管理员</option>
-                        <option value="普通用户">普通用户</option>
-                        <option value="访客">访客</option>
-                    </select>
-                </div>
-                <div class="search-item">
-                    <label>用户账号</label>
-                    <input type="text" id="searchUserAccount" placeholder="请输入用户账号">
-                </div>
-                <div class="search-buttons">
-                    <button type="button" class="btn btn-primary" onclick="handleSearch()">搜索</button>
-                    <button type="button" class="btn btn-reset" onclick="handleReset()">重置</button>
-                </div>
-            </form>
+        <div class="user-info" id="userInfo">
+            <!-- 用户信息将通过JavaScript动态生成 -->
         </div>
         
         <div class="table-section">
             <table>
                 <thead>
                     <tr>
-                        <th>用户ID</th>
-                        <th>用户名称</th>
-                        <th>用户类型</th>
-                        <th>用户账号</th>
-                        <th>资源操作</th>
+                        <th>域</th>
+                        <th>资源总数</th>
+                        <th>生效资源数量</th>
+                        <th>审批中资源数量</th>
+                        <th>操作</th>
                     </tr>
                 </thead>
                 <tbody id="tableBody">
@@ -441,21 +354,16 @@
             </div>
             <form class="modal-form" id="grantForm" onsubmit="handleSubmitGrant(event)">
                 <input type="hidden" id="grantUserId" value="">
-                <div class="form-item">
-                    <label>资源域 <span style="color: red;">*</span></label>
-                    <select id="grantDomain" required onchange="handleGrantDomainChange()">
-                        <option value="">请选择资源域</option>
-                    </select>
-                </div>
+                <input type="hidden" id="grantDomain" value="">
                 <div class="form-item">
                     <label>选择资源</label>
                     <div class="resource-tree" id="grantresourceTree">
-                        <div style="padding: 20px; text-align: center; color: #999;">请先选择资源域</div>
+                        <!-- 资源树将通过JavaScript动态生成 -->
                     </div>
                 </div>
                 <div class="form-buttons">
-                    <button type="button" class="btn btn-reset" onclick="closeGrantModal()">取消</button>
-                    <button type="submit" class="btn btn-primary">保存</button>
+                    <button type="button" class="btn-back" onclick="closeGrantModal()">取消</button>
+                    <button type="submit" class="btn-action btn-grant">保存</button>
                 </div>
             </form>
         </div>
@@ -470,21 +378,16 @@
             </div>
             <form class="modal-form" id="revokeForm" onsubmit="handleSubmitRevoke(event)">
                 <input type="hidden" id="revokeUserId" value="">
-                <div class="form-item">
-                    <label>资源域 <span style="color: red;">*</span></label>
-                    <select id="revokeDomain" required onchange="handleRevokeDomainChange()">
-                        <option value="">请选择资源域</option>
-                    </select>
-                </div>
+                <input type="hidden" id="revokeDomain" value="">
                 <div class="form-item">
                     <label>选择资源</label>
                     <div class="resource-tree" id="revokeresourceTree">
-                        <div style="padding: 20px; text-align: center; color: #999;">请先选择资源域</div>
+                        <!-- 资源树将通过JavaScript动态生成 -->
                     </div>
                 </div>
                 <div class="form-buttons">
-                    <button type="button" class="btn btn-reset" onclick="closeRevokeModal()">取消</button>
-                    <button type="submit" class="btn btn-primary">保存</button>
+                    <button type="button" class="btn-back" onclick="closeRevokeModal()">取消</button>
+                    <button type="submit" class="btn-action btn-remove">保存</button>
                 </div>
             </form>
         </div>
@@ -499,28 +402,29 @@
             </div>
             <div class="modal-form">
                 <input type="hidden" id="viewUserId" value="">
-                <div class="form-item">
-                    <label>资源域 <span style="color: red;">*</span></label>
-                    <select id="viewDomain" required onchange="handleViewDomainChange()">
-                        <option value="">请选择资源域</option>
-                    </select>
-                </div>
+                <input type="hidden" id="viewDomain" value="">
                 <div class="form-item">
                     <label>资源列表</label>
                     <div class="resource-tree" id="viewresourceTree">
-                        <div style="padding: 20px; text-align: center; color: #999;">请先选择资源域</div>
+                        <!-- 资源树将通过JavaScript动态生成 -->
                     </div>
                 </div>
                 <div class="form-buttons">
-                    <button type="button" class="btn btn-reset" onclick="closeViewModal()">关闭</button>
+                    <button type="button" class="btn-back" onclick="closeViewModal()">关闭</button>
                 </div>
             </div>
         </div>
     </div>
     
     <script>
-        // 示例数据
-        let allUsers = [
+        // 从URL参数获取userId
+        function getUserIdFromUrl() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('userId');
+        }
+        
+        // 示例用户数据
+        const allUsers = [
             {
                 id: '1',
                 name: '张三',
@@ -559,10 +463,8 @@
             }
         ];
         
-        let filteredUsers = [...allUsers];
-        
         // 资源数据（从资源管理页面复制）
-        let allresources = [
+        const allresources = [
             // 数据分析域 - 形成层级关系
             {
                 id: '1',
@@ -719,63 +621,77 @@
         // 用户-资源关联关系 { userId: [resourceId1, resourceId2, ...] }
         let userresources = {};
         
+        // 用户资源关联关系 { userId: { domain: { total: number, active: number, pending: number } } }
+        const userResourceStats = {
+            '1': {
+                '数据分析': { total: 3, active: 2, pending: 1 },
+                '报表管理': { total: 2, active: 2, pending: 0 },
+                '内容管理': { total: 2, active: 1, pending: 1 }
+            },
+            '2': {
+                '数据分析': { total: 3, active: 1, pending: 2 },
+                '内容管理': { total: 2, active: 0, pending: 2 }
+            },
+            '3': {
+                '数据分析': { total: 3, active: 3, pending: 0 }
+            }
+        };
+        
+        // 获取所有资源域
+        function getAllDomains() {
+            return [...new Set(allresources.map(r => r.domain))].sort();
+        }
+        
+        // 渲染用户信息
+        function renderUserInfo(userId) {
+            const user = allUsers.find(u => u.id === userId);
+            const userInfoDiv = document.getElementById('userInfo');
+            
+            if (user) {
+                userInfoDiv.innerHTML = `
+                    <strong>用户ID:</strong> ${user.id} | 
+                    <strong>用户名称:</strong> ${user.name} | 
+                    <strong>用户类型:</strong> ${user.type} | 
+                    <strong>用户账号:</strong> ${user.account}
+                `;
+            } else {
+                userInfoDiv.innerHTML = '<span style="color: #ff4d4f;">未找到用户信息</span>';
+            }
+        }
+        
         // 渲染表格
-        function renderTable(users) {
+        function renderTable(userId) {
             const tbody = document.getElementById('tableBody');
             const emptyState = document.getElementById('emptyState');
             
-            if (users.length === 0) {
+            const domains = getAllDomains();
+            const stats = userResourceStats[userId] || {};
+            
+            if (domains.length === 0) {
                 tbody.innerHTML = '';
                 emptyState.style.display = 'block';
                 return;
             }
             
             emptyState.style.display = 'none';
-            tbody.innerHTML = users.map(user => `
-                <tr>
-                    <td>${user.id}</td>
-                    <td>${user.name}</td>
-                    <td>${user.type}</td>
-                    <td>${user.account}</td>
-                    <td>
-                        <div class="operation-buttons">
-                            <button type="button" class="btn-action btn-grant" onclick="handleGrant('${user.id}')">赋资源</button>
-                            <button type="button" class="btn-action btn-revoke" onclick="handleRevoke('${user.id}')">除资源</button>
-                            <button type="button" class="btn-action" onclick="handleView('${user.id}')">查看</button>
-                        </div>
-                    </td>
-                </tr>
-            `).join('');
-        }
-        
-        // 搜索功能
-        function handleSearch() {
-            const searchUserId = document.getElementById('searchUserId').value.trim();
-            const searchUserName = document.getElementById('searchUserName').value.trim();
-            const searchUserType = document.getElementById('searchUserType').value;
-            const searchUserAccount = document.getElementById('searchUserAccount').value.trim();
-            
-            filteredUsers = allUsers.filter(user => {
-                const matchId = !searchUserId || user.id.includes(searchUserId);
-                const matchName = !searchUserName || user.name.includes(searchUserName);
-                const matchType = !searchUserType || user.type === searchUserType;
-                const matchAccount = !searchUserAccount || user.account.includes(searchUserAccount);
-                
-                return matchId && matchName && matchType && matchAccount;
-            });
-            
-            renderTable(filteredUsers);
-        }
-        
-        // 重置功能
-        function handleReset() {
-            document.getElementById('searchUserId').value = '';
-            document.getElementById('searchUserName').value = '';
-            document.getElementById('searchUserType').value = '';
-            document.getElementById('searchUserAccount').value = '';
-            
-            filteredUsers = [...allUsers];
-            renderTable(filteredUsers);
+            tbody.innerHTML = domains.map(domain => {
+                const domainStats = stats[domain] || { total: 0, active: 0, pending: 0 };
+                return `
+                    <tr>
+                        <td>${domain}</td>
+                        <td>${domainStats.total}</td>
+                        <td>${domainStats.active}</td>
+                        <td>${domainStats.pending}</td>
+                        <td>
+                            <div class="operation-buttons">
+                                <button type="button" class="btn-action btn-view" onclick="handleView('${userId}', '${domain}')">查看</button>
+                                <button type="button" class="btn-action btn-grant" onclick="handleGrant('${userId}', '${domain}')">赋资源</button>
+                                <button type="button" class="btn-action btn-remove" onclick="handleRevoke('${userId}', '${domain}')">除资源</button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
         }
         
         // 构建资源树结构
@@ -812,51 +728,6 @@
             });
             
             return rootNodes;
-        }
-        
-        // 获取节点的所有后代ID
-        function getAllDescendantIds(node) {
-            const ids = [];
-            if (node.children && node.children.length > 0) {
-                node.children.forEach(child => {
-                    ids.push(child.id);
-                    ids.push(...getAllDescendantIds(child));
-                });
-            }
-            return ids;
-        }
-        
-        // 从资源列表中查找节点并获取所有后代ID
-        function getAllDescendantIdsFromList(resourceId, allresources) {
-            const resource = allresources.find(p => p.id === resourceId);
-            if (!resource) return [];
-            
-            const resourceMap = {};
-            allresources.forEach(p => {
-                resourceMap[p.id] = { ...p, children: [] };
-            });
-            
-            allresources.forEach(p => {
-                if (p.parentId && resourceMap[p.parentId]) {
-                    resourceMap[p.parentId].children.push(resourceMap[p.id]);
-                }
-            });
-            
-            const node = resourceMap[resourceId];
-            if (!node) return [];
-            
-            return getAllDescendantIds(node);
-        }
-        
-        // 获取节点的所有父节点ID
-        function getAllParentIds(resourceId, allresources) {
-            const ids = [];
-            let current = allresources.find(p => p.id === resourceId);
-            while (current && current.parentId) {
-                ids.push(current.parentId);
-                current = allresources.find(p => p.id === current.parentId);
-            }
-            return ids;
         }
         
         // 渲染多选资源树节点
@@ -1002,52 +873,18 @@
             return Array.from(checkboxes).map(cb => cb.value);
         }
         
-        // 初始化资源域下拉框
-        function initDomainSelect(selectId) {
-            const domainSelect = document.getElementById(selectId);
-            if (!domainSelect) return;
-            
-            domainSelect.innerHTML = '<option value="">请选择资源域</option>';
-            const domains = [...new Set(allresources.map(p => p.domain))].sort();
-            domains.forEach(domain => {
-                const option = document.createElement('option');
-                option.value = domain;
-                option.textContent = domain;
-                domainSelect.appendChild(option);
-            });
-        }
-        
         // 赋资源操作
-        function handleGrant(userId) {
+        function handleGrant(userId, domain) {
             const modal = document.getElementById('grantModal');
             document.getElementById('grantUserId').value = userId;
-            
-            // 初始化资源域下拉框
-            initDomainSelect('grantDomain');
-            
-            // 清空资源树
-            const treeContainer = document.getElementById('grantresourceTree');
-            treeContainer.innerHTML = '<div style="padding: 20px; text-align: center; color: #999;">请先选择资源域</div>';
-            
-            modal.classList.add('show');
-        }
-        
-        // 资源域变化（赋资源）
-        function handleGrantDomainChange() {
-            const domain = document.getElementById('grantDomain').value;
-            const treeContainer = document.getElementById('grantresourceTree');
-            const userId = document.getElementById('grantUserId').value;
-            
-            if (!domain) {
-                treeContainer.innerHTML = '<div style="padding: 20px; text-align: center; color: #999;">请先选择资源域</div>';
-                return;
-            }
+            document.getElementById('grantDomain').value = domain;
             
             // 获取该用户已拥有的资源（用于预选中）
             const userresourceIds = userresources[userId] || [];
             
             // 构建资源树
             const tree = buildresourceTree(domain);
+            const treeContainer = document.getElementById('grantresourceTree');
             treeContainer.innerHTML = '';
             
             if (tree.length > 0) {
@@ -1062,6 +899,8 @@
             } else {
                 treeContainer.innerHTML = '<div style="padding: 20px; text-align: center; color: #999;">该域下暂无资源数据</div>';
             }
+            
+            modal.classList.add('show');
         }
         
         // 提交赋资源
@@ -1073,7 +912,7 @@
             const selectedIds = getSelectedresourceIds('grantresourceTree');
             
             if (!userId || !domain) {
-                alert('请选择资源域');
+                alert('缺少必要参数');
                 return;
             }
             
@@ -1100,6 +939,8 @@
             
             closeGrantModal();
             alert('赋资源成功');
+            // 刷新表格
+            renderTable(userId);
         }
         
         // 关闭赋资源弹窗
@@ -1108,33 +949,14 @@
             modal.classList.remove('show');
             document.getElementById('grantForm').reset();
             document.getElementById('grantUserId').value = '';
+            document.getElementById('grantDomain').value = '';
         }
         
         // 除资源操作
-        function handleRevoke(userId) {
+        function handleRevoke(userId, domain) {
             const modal = document.getElementById('revokeModal');
             document.getElementById('revokeUserId').value = userId;
-            
-            // 初始化资源域下拉框
-            initDomainSelect('revokeDomain');
-            
-            // 清空资源树
-            const treeContainer = document.getElementById('revokeresourceTree');
-            treeContainer.innerHTML = '<div style="padding: 20px; text-align: center; color: #999;">请先选择资源域</div>';
-            
-            modal.classList.add('show');
-        }
-        
-        // 资源域变化（除资源）
-        function handleRevokeDomainChange() {
-            const domain = document.getElementById('revokeDomain').value;
-            const treeContainer = document.getElementById('revokeresourceTree');
-            const userId = document.getElementById('revokeUserId').value;
-            
-            if (!domain) {
-                treeContainer.innerHTML = '<div style="padding: 20px; text-align: center; color: #999;">请先选择资源域</div>';
-                return;
-            }
+            document.getElementById('revokeDomain').value = domain;
             
             // 获取该用户已拥有的资源
             const userresourceIds = userresources[userId] || [];
@@ -1146,12 +968,15 @@
             const ownedresourceIds = userresourceIds.filter(id => domainresourceIds.includes(id));
             
             if (ownedresourceIds.length === 0) {
+                const treeContainer = document.getElementById('revokeresourceTree');
                 treeContainer.innerHTML = '<div style="padding: 20px; text-align: center; color: #999;">该域下暂无已赋资源的资源</div>';
+                modal.classList.add('show');
                 return;
             }
             
             // 构建资源树（只显示已拥有的资源）
             const tree = buildresourceTree(domain, ownedresourceIds);
+            const treeContainer = document.getElementById('revokeresourceTree');
             treeContainer.innerHTML = '';
             
             if (tree.length > 0) {
@@ -1162,6 +987,8 @@
             } else {
                 treeContainer.innerHTML = '<div style="padding: 20px; text-align: center; color: #999;">该域下暂无已赋资源的资源</div>';
             }
+            
+            modal.classList.add('show');
         }
         
         // 提交除资源
@@ -1173,7 +1000,7 @@
             const selectedIds = getSelectedresourceIds('revokeresourceTree');
             
             if (!userId || !domain) {
-                alert('请选择资源域');
+                alert('缺少必要参数');
                 return;
             }
             
@@ -1189,6 +1016,8 @@
             
             closeRevokeModal();
             alert('除资源成功');
+            // 刷新表格
+            renderTable(userId);
         }
         
         // 关闭除资源弹窗
@@ -1197,33 +1026,14 @@
             modal.classList.remove('show');
             document.getElementById('revokeForm').reset();
             document.getElementById('revokeUserId').value = '';
+            document.getElementById('revokeDomain').value = '';
         }
         
         // 查看资源操作
-        function handleView(userId) {
+        function handleView(userId, domain) {
             const modal = document.getElementById('viewModal');
             document.getElementById('viewUserId').value = userId;
-            
-            // 初始化资源域下拉框
-            initDomainSelect('viewDomain');
-            
-            // 清空资源树
-            const treeContainer = document.getElementById('viewresourceTree');
-            treeContainer.innerHTML = '<div style="padding: 20px; text-align: center; color: #999;">请先选择资源域</div>';
-            
-            modal.classList.add('show');
-        }
-        
-        // 资源域变化（查看资源）
-        function handleViewDomainChange() {
-            const domain = document.getElementById('viewDomain').value;
-            const treeContainer = document.getElementById('viewresourceTree');
-            const userId = document.getElementById('viewUserId').value;
-            
-            if (!domain) {
-                treeContainer.innerHTML = '<div style="padding: 20px; text-align: center; color: #999;">请先选择资源域</div>';
-                return;
-            }
+            document.getElementById('viewDomain').value = domain;
             
             // 获取该用户已拥有的资源
             const userresourceIds = userresources[userId] || [];
@@ -1235,12 +1045,15 @@
             const ownedresourceIds = userresourceIds.filter(id => domainresourceIds.includes(id));
             
             if (ownedresourceIds.length === 0) {
+                const treeContainer = document.getElementById('viewresourceTree');
                 treeContainer.innerHTML = '<div style="padding: 20px; text-align: center; color: #999;">该域下暂无已赋资源的资源</div>';
+                modal.classList.add('show');
                 return;
             }
             
             // 构建资源树（只显示已拥有的资源，使用只读模式）
             const tree = buildresourceTree(domain, ownedresourceIds);
+            const treeContainer = document.getElementById('viewresourceTree');
             treeContainer.innerHTML = '';
             
             if (tree.length > 0) {
@@ -1251,6 +1064,8 @@
             } else {
                 treeContainer.innerHTML = '<div style="padding: 20px; text-align: center; color: #999;">该域下暂无已赋资源的资源</div>';
             }
+            
+            modal.classList.add('show');
         }
         
         // 关闭查看资源弹窗
@@ -1261,16 +1076,22 @@
             document.getElementById('viewUserId').value = '';
         }
         
-        // 回车搜索
-        document.getElementById('searchForm').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                handleSearch();
+        // 初始化
+        function init() {
+            const userId = getUserIdFromUrl();
+            
+            if (!userId) {
+                alert('缺少用户ID参数');
+                window.location.href = 'user-management.html';
+                return;
             }
-        });
+            
+            renderUserInfo(userId);
+            renderTable(userId);
+        }
         
-        // 初始化渲染
-        renderTable(filteredUsers);
+        // 页面加载时初始化
+        init();
     </script>
 </body>
 </html>

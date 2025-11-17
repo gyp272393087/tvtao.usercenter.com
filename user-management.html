@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用户管理</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background-color: #f5f5f5;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            padding: 24px;
+        }
+        
+        h1 {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 24px;
+            font-weight: 500;
+        }
+        
+        .search-section {
+            background: #fafafa;
+            padding: 20px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+        
+        .search-title {
+            font-size: 16px;
+            color: #333;
+            margin-bottom: 16px;
+            font-weight: 500;
+        }
+        
+        .search-form {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            align-items: flex-end;
+        }
+        
+        .search-item {
+            display: flex;
+            flex-direction: column;
+            flex: 0 0 auto;
+            min-width: 150px;
+            max-width: 200px;
+        }
+        
+        .search-item label {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 6px;
+        }
+        
+        .search-item input,
+        .search-item select {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        
+        .search-item input:focus,
+        .search-item select:focus {
+            outline: none;
+            border-color: #1890ff;
+        }
+        
+        .search-item select {
+            background: white;
+            cursor: pointer;
+        }
+        
+        .search-buttons {
+            display: flex;
+            gap: 12px;
+            flex-shrink: 0;
+        }
+        
+        .btn {
+            padding: 8px 20px;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: #1890ff;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #40a9ff;
+        }
+        
+        .btn-reset {
+            background: #fff;
+            color: #666;
+            border: 1px solid #ddd;
+        }
+        
+        .btn-reset:hover {
+            border-color: #1890ff;
+            color: #1890ff;
+        }
+        
+        .table-section {
+            overflow-x: auto;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+        
+        thead {
+            background: #fafafa;
+        }
+        
+        th {
+            padding: 12px;
+            text-align: left;
+            font-weight: 500;
+            color: #333;
+            border-bottom: 1px solid #e8e8e8;
+        }
+        
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #f0f0f0;
+            color: #666;
+        }
+        
+        tbody tr:hover {
+            background: #fafafa;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+        
+        .btn-view {
+            padding: 4px 12px;
+            border: 1px solid #1890ff;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            background: white;
+            color: #1890ff;
+            transition: all 0.3s;
+        }
+        
+        .btn-view:hover {
+            background: #e6f7ff;
+            border-color: #40a9ff;
+            color: #40a9ff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>用户管理</h1>
+        
+        <div class="search-section">
+            <div class="search-title">搜索条件</div>
+            <form class="search-form" id="searchForm">
+                <div class="search-item">
+                    <label>用户ID</label>
+                    <input type="text" id="searchUserId" placeholder="请输入用户ID">
+                </div>
+                <div class="search-item">
+                    <label>用户名称</label>
+                    <input type="text" id="searchUserName" placeholder="请输入用户名称">
+                </div>
+                <div class="search-item">
+                    <label>用户类型</label>
+                    <select id="searchUserType">
+                        <option value="">全部</option>
+                        <option value="管理员">管理员</option>
+                        <option value="普通用户">普通用户</option>
+                        <option value="访客">访客</option>
+                    </select>
+                </div>
+                <div class="search-item">
+                    <label>用户账号</label>
+                    <input type="text" id="searchUserAccount" placeholder="请输入用户账号">
+                </div>
+                <div class="search-buttons">
+                    <button type="button" class="btn btn-primary" onclick="handleSearch()">搜索</button>
+                    <button type="button" class="btn btn-reset" onclick="handleReset()">重置</button>
+                </div>
+            </form>
+        </div>
+        
+        <div class="table-section">
+            <table>
+                <thead>
+                    <tr>
+                        <th>用户ID</th>
+                        <th>用户名称</th>
+                        <th>用户类型</th>
+                        <th>用户账号</th>
+                        <th>权限</th>
+                        <th>资源</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                    <!-- 数据将通过JavaScript动态生成 -->
+                </tbody>
+            </table>
+            <div id="emptyState" class="empty-state" style="display: none;">
+                暂无数据
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // 示例数据
+        let allUsers = [
+            {
+                id: '1',
+                name: '张三',
+                type: '管理员',
+                account: 'zhangsan'
+            },
+            {
+                id: '2',
+                name: '李四',
+                type: '普通用户',
+                account: 'lisi'
+            },
+            {
+                id: '3',
+                name: '王五',
+                type: '普通用户',
+                account: 'wangwu'
+            },
+            {
+                id: '4',
+                name: '赵六',
+                type: '访客',
+                account: 'zhaoliu'
+            },
+            {
+                id: '5',
+                name: '钱七',
+                type: '管理员',
+                account: 'qianqi'
+            },
+            {
+                id: '6',
+                name: '孙八',
+                type: '普通用户',
+                account: 'sunba'
+            }
+        ];
+        
+        let filteredUsers = [...allUsers];
+        
+        // 渲染表格
+        function renderTable(users) {
+            const tbody = document.getElementById('tableBody');
+            const emptyState = document.getElementById('emptyState');
+            
+            if (users.length === 0) {
+                tbody.innerHTML = '';
+                emptyState.style.display = 'block';
+                return;
+            }
+            
+            emptyState.style.display = 'none';
+            tbody.innerHTML = users.map(user => `
+                <tr>
+                    <td>${user.id}</td>
+                    <td>${user.name}</td>
+                    <td>${user.type}</td>
+                    <td>${user.account}</td>
+                    <td>
+                        <button type="button" class="btn-view" onclick="handleViewPermission('${user.id}')">查看详情</button>
+                    </td>
+                    <td>
+                        <button type="button" class="btn-view" onclick="handleViewResource('${user.id}')">查看详情</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+        
+        // 搜索功能
+        function handleSearch() {
+            const searchUserId = document.getElementById('searchUserId').value.trim();
+            const searchUserName = document.getElementById('searchUserName').value.trim();
+            const searchUserType = document.getElementById('searchUserType').value;
+            const searchUserAccount = document.getElementById('searchUserAccount').value.trim();
+            
+            filteredUsers = allUsers.filter(user => {
+                const matchId = !searchUserId || user.id.includes(searchUserId);
+                const matchName = !searchUserName || user.name.includes(searchUserName);
+                const matchType = !searchUserType || user.type === searchUserType;
+                const matchAccount = !searchUserAccount || user.account.includes(searchUserAccount);
+                
+                return matchId && matchName && matchType && matchAccount;
+            });
+            
+            renderTable(filteredUsers);
+        }
+        
+        // 重置功能
+        function handleReset() {
+            document.getElementById('searchUserId').value = '';
+            document.getElementById('searchUserName').value = '';
+            document.getElementById('searchUserType').value = '';
+            document.getElementById('searchUserAccount').value = '';
+            
+            filteredUsers = [...allUsers];
+            renderTable(filteredUsers);
+        }
+        
+        // 查看权限详情
+        function handleViewPermission(userId) {
+            window.location.href = `user-permission-detail.html?userId=${userId}`;
+        }
+        
+        // 查看资源详情
+        function handleViewResource(userId) {
+            window.location.href = `user-resource-detail.html?userId=${userId}`;
+        }
+        
+        // 回车搜索
+        document.getElementById('searchForm').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                handleSearch();
+            }
+        });
+        
+        // 初始化渲染
+        renderTable(filteredUsers);
+    </script>
+</body>
+</html>
+
