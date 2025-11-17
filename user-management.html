@@ -181,7 +181,7 @@
 </head>
 <body>
     <div class="container">
-        <h1>用户管理</h1>
+        <h1>用户权控管理</h1>
         
         <div class="search-section">
             <div class="search-title">搜索条件</div>
@@ -222,8 +222,7 @@
                         <th>用户名称</th>
                         <th>用户类型</th>
                         <th>用户账号</th>
-                        <th>权限</th>
-                        <th>资源</th>
+                        <th>权控</th>
                     </tr>
                 </thead>
                 <tbody id="tableBody">
@@ -298,10 +297,7 @@
                     <td>${user.type}</td>
                     <td>${user.account}</td>
                     <td>
-                        <button type="button" class="btn-view" onclick="handleViewPermission('${user.id}')">查看详情</button>
-                    </td>
-                    <td>
-                        <button type="button" class="btn-view" onclick="handleViewResource('${user.id}')">查看详情</button>
+                        <button type="button" class="btn-view" onclick="handleControl('${user.id}')">查看</button>
                     </td>
                 </tr>
             `).join('');
@@ -336,15 +332,10 @@
             filteredUsers = [...allUsers];
             renderTable(filteredUsers);
         }
-        
-        // 查看权限详情
-        function handleViewPermission(userId) {
-            window.location.href = `user-permission-detail.html?userId=${userId}`;
-        }
-        
-        // 查看资源详情
-        function handleViewResource(userId) {
-            window.location.href = `user-resource-detail.html?userId=${userId}`;
+
+        // 查看权控详情
+        function handleControl(userId) {
+            window.location.href = `user-control-detail.html?userId=${userId}`;
         }
         
         // 回车搜索
