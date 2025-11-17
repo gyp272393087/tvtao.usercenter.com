@@ -230,16 +230,14 @@
         }
         
         .operation-info {
-            font-size: 13px;
-            line-height: 1.6;
+            display: grid;
+            grid-template-columns: repeat(2, minmax(120px, 1fr));
+            gap: 6px 3px;
         }
-        
-        .operation-info-item {
-            margin-bottom: 4px;
-        }
-        
-        .operation-info-item:last-child {
-            margin-bottom: 0;
+
+        .operation-info span {
+            font-size: 12px;
+            color: #999;
         }
         
         .operation-buttons {
@@ -482,6 +480,7 @@
 </head>
 <body>
     <div class="container">
+        <h1>资源管理</h1>
         <div class="search-section">
             <div class="search-title">搜索条件</div>
             <form class="search-form" id="searchForm">
@@ -809,10 +808,10 @@
                     <td>${resource.code}</td>
                     <td>
                         <div class="operation-info">
-                            <div class="operation-info-item">创建人：${resource.creator}</div>
-                            <div class="operation-info-item">创建时间：${resource.createTime}</div>
-                            <div class="operation-info-item">修改人：${resource.modifier}</div>
-                            <div class="operation-info-item">修改时间：${resource.modifyTime}</div>
+                            <span>创建人：${resource.creator || '-'}</span>
+                            <span>创建时间：${resource.createTime || '-'}</span>
+                            <span>修改人：${resource.modifier || '-'}</span>
+                            <span>修改时间：${resource.modifyTime || '-'}</span>
                         </div>
                     </td>
                     <td>

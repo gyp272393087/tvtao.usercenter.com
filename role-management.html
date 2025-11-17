@@ -1,0 +1,1246 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>角色管理</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background-color: #f5f5f5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            padding: 24px;
+        }
+
+        h1 {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 24px;
+            font-weight: 500;
+        }
+
+        .search-section {
+            background: #fafafa;
+            padding: 20px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+
+        .search-title {
+            font-size: 16px;
+            color: #333;
+            margin-bottom: 16px;
+            font-weight: 500;
+        }
+
+        .search-form {
+            display: flex;
+            flex-wrap: nowrap;
+            gap: 16px;
+            align-items: flex-end;
+        }
+
+        .search-item {
+            display: flex;
+            flex-direction: column;
+            flex: 0 0 auto;
+            min-width: 150px;
+            max-width: 200px;
+        }
+
+        .search-item label {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 6px;
+        }
+
+        .search-item input,
+        .search-item select {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .search-item input:focus,
+        .search-item select:focus {
+            outline: none;
+            border-color: #1890ff;
+        }
+
+        .search-buttons {
+            display: flex;
+            gap: 12px;
+            flex-shrink: 0;
+        }
+
+        .btn {
+            padding: 8px 20px;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #1890ff;
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background: #40a9ff;
+        }
+
+        .btn-reset {
+            background: #fff;
+            color: #666;
+            border: 1px solid #ddd;
+        }
+
+        .btn-reset:hover {
+            border-color: #1890ff;
+            color: #1890ff;
+        }
+
+        .btn-link {
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            border: 1px solid transparent;
+            transition: all 0.3s;
+            background: transparent;
+        }
+
+        .btn-edit {
+            color: #1890ff;
+            border-color: #1890ff;
+        }
+
+        .btn-edit:hover {
+            background: #e6f7ff;
+        }
+
+        .btn-delete {
+            color: #ff4d4f;
+            border-color: #ff4d4f;
+        }
+
+        .btn-delete:hover {
+            background: #fff1f0;
+        }
+
+        .table-section {
+            overflow-x: auto;
+        }
+
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .table-title {
+            font-size: 16px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .table-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn-new {
+            background: #52c41a;
+            color: #fff;
+            padding: 8px 20px;
+        }
+
+        .btn-new:hover {
+            background: #73d13d;
+        }
+
+        .btn-download {
+            background: #fff;
+            color: #666;
+            padding: 8px 20px;
+            border: 1px solid #ddd;
+        }
+
+        .btn-download:hover {
+            border-color: #1890ff;
+            color: #1890ff;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        thead {
+            background: #fafafa;
+        }
+
+        th,
+        td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        th {
+            font-weight: 500;
+            color: #333;
+        }
+
+        td {
+            color: #666;
+        }
+
+        tbody tr:hover {
+            background: #fafafa;
+        }
+
+        .operation-info {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(120px, 1fr));
+            gap: 6px 3px;
+        }
+
+        .operation-info span {
+            font-size: 12px;
+            color: #999;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+
+        /* 弹窗样式 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 8px;
+            padding: 24px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: #999;
+            cursor: pointer;
+            padding: 0;
+            width: 24px;
+            height: 24px;
+            line-height: 24px;
+        }
+
+        .modal-close:hover {
+            color: #333;
+        }
+
+        .modal-form {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .form-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-item label {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 6px;
+        }
+
+        .form-item input,
+        .form-item select {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .form-item input:focus,
+        .form-item select:focus {
+            outline: none;
+            border-color: #1890ff;
+        }
+
+        .form-item input:disabled,
+        .form-item select:disabled {
+            background-color: #f5f5f5;
+            cursor: not-allowed;
+            color: #999;
+        }
+
+        .form-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 8px;
+        }
+
+        /* 权限树样式 */
+        .permission-tree {
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            max-height: 300px;
+            overflow-y: auto;
+            padding: 8px;
+            background: #fafafa;
+        }
+
+        .tree-node {
+            margin: 4px 0;
+        }
+
+        .tree-node-content {
+            display: flex;
+            align-items: center;
+            padding: 4px 8px;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+
+        .tree-node-content:hover {
+            background: #e6f7ff;
+        }
+
+        .tree-node-content.selected {
+            background: #bae7ff;
+        }
+
+        .tree-toggle {
+            width: 16px;
+            height: 16px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 4px;
+            cursor: pointer;
+            color: #666;
+            font-size: 12px;
+        }
+
+        .tree-toggle:hover {
+            color: #1890ff;
+        }
+
+        .tree-checkbox {
+            margin-right: 6px;
+        }
+
+        .tree-label {
+            flex: 1;
+            font-size: 14px;
+            color: #333;
+            cursor: pointer;
+        }
+
+        .tree-node.leaf .tree-toggle {
+            visibility: hidden;
+        }
+
+        .tree-children {
+            display: none;
+            margin-left: 20px;
+        }
+
+        .tree-children.expanded {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>角色管理</h1>
+
+        <div class="search-section">
+            <div class="search-title">搜索条件</div>
+            <form class="search-form" id="searchForm">
+                <div class="search-item">
+                    <label>角色ID</label>
+                    <input type="text" id="searchRoleId" placeholder="请输入角色ID">
+                </div>
+                <div class="search-item">
+                    <label>角色域</label>
+                    <select id="searchRoleDomain">
+                        <option value="">全部</option>
+                    </select>
+                </div>
+                <div class="search-item">
+                    <label>角色名称</label>
+                    <input type="text" id="searchRoleName" placeholder="请输入角色名称">
+                </div>
+                <div class="search-item">
+                    <label>角色码</label>
+                    <input type="text" id="searchRoleCode" placeholder="请输入角色码">
+                </div>
+                <div class="search-buttons">
+                    <button type="button" class="btn btn-primary" onclick="handleSearch()">搜索</button>
+                    <button type="button" class="btn btn-reset" onclick="handleReset()">重置</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="table-section">
+            <div class="table-header">
+                <div class="table-title">角色列表</div>
+                <div class="table-actions">
+                    <button type="button" class="btn btn-new" onclick="handleCreate()">创建角色</button>
+                </div>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>角色域</th>
+                        <th>角色名称</th>
+                        <th>角色码</th>
+                        <th>操作信息</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                    <!-- 数据将通过JavaScript动态生成 -->
+                </tbody>
+            </table>
+            <div id="emptyState" class="empty-state" style="display: none;">
+                暂无数据
+            </div>
+        </div>
+    </div>
+
+    <!-- 创建角色弹窗 -->
+    <div id="createRoleModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">创建角色</div>
+                <button type="button" class="modal-close" onclick="closeCreateModal()">&times;</button>
+            </div>
+            <form id="createRoleForm" class="modal-form" onsubmit="handleSubmitCreate(event)">
+                <div class="form-item">
+                    <label>角色域 <span style="color: red;">*</span></label>
+                    <select id="createRoleDomain" required>
+                        <option value="">请选择角色域</option>
+                    </select>
+                </div>
+                <div class="form-item">
+                    <label>角色名称 <span style="color: red;">*</span></label>
+                    <input type="text" id="createRoleName" placeholder="请输入角色名称" required>
+                </div>
+                <div class="form-item">
+                    <label>角色码 <span style="color: red;">*</span></label>
+                    <input type="text" id="createRoleCode" placeholder="请输入角色码" required>
+                </div>
+                <div class="form-item">
+                    <label>关联权限</label>
+                    <div id="createPermissionTree" class="permission-tree">
+                        <div style="padding: 12px; text-align: center; color: #999;">请先选择角色域</div>
+                    </div>
+                </div>
+                <div class="form-buttons">
+                    <button type="button" class="btn btn-reset" onclick="closeCreateModal()">取消</button>
+                    <button type="submit" class="btn btn-primary">提交</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 编辑角色弹窗 -->
+    <div id="editRoleModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">修改角色</div>
+                <button type="button" class="modal-close" onclick="closeEditModal()">&times;</button>
+            </div>
+            <form id="editRoleForm" class="modal-form" onsubmit="handleSubmitEdit(event)">
+                <div class="form-item">
+                    <label>角色域 <span style="color: red;">*</span></label>
+                    <select id="editRoleDomain" required disabled>
+                        <option value="">请选择角色域</option>
+                    </select>
+                </div>
+                <div class="form-item">
+                    <label>角色名称 <span style="color: red;">*</span></label>
+                    <input type="text" id="editRoleName" placeholder="请输入角色名称" required>
+                </div>
+                <div class="form-item">
+                    <label>角色码 <span style="color: red;">*</span></label>
+                    <input type="text" id="editRoleCode" placeholder="请输入角色码" required>
+                </div>
+                <div class="form-item">
+                    <label>关联权限</label>
+                    <div id="editPermissionTree" class="permission-tree">
+                        <div style="padding: 12px; text-align: center; color: #999;">加载中...</div>
+                    </div>
+                </div>
+                <div class="form-buttons">
+                    <button type="button" class="btn btn-reset" onclick="closeEditModal()">取消</button>
+                    <button type="submit" class="btn btn-primary">提交</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const allRoles = [
+            {
+                id: 1001,
+                domain: '用户管理',
+                name: '系统管理员',
+                code: 'ADMIN_SYS',
+                createdBy: '张三',
+                createdAt: '2024-06-01 10:20',
+                updatedBy: '李四',
+                updatedAt: '2024-08-12 14:35',
+                permissions: ['1', '2', '3', '4', '5', '6', '7', '8']
+            },
+            {
+                id: 1002,
+                domain: '用户管理',
+                name: '外部审计',
+                code: 'AUDIT_EXT',
+                createdBy: '赵六',
+                createdAt: '2024-07-03 09:15',
+                updatedBy: '赵六',
+                updatedAt: '2024-07-03 09:15',
+                permissions: ['2', '5', '6']
+            },
+            {
+                id: 1003,
+                domain: '用户管理',
+                name: '合作内容管理员',
+                code: 'PARTNER_CONTENT',
+                createdBy: '王五',
+                createdAt: '2024-05-25 16:40',
+                updatedBy: '钱七',
+                updatedAt: '2024-09-01 11:05',
+                permissions: ['1', '2', '3', '5', '6', '7']
+            }
+        ];
+
+        // 权限数据（来源于 user-control-detail.html）
+        const allPermissions = [
+            {
+                id: '1',
+                domain: '用户管理',
+                name: '用户管理',
+                code: 'user:manage',
+                creator: '张三',
+                createTime: '2024-01-10 10:00:00',
+                modifier: '张三',
+                modifyTime: '2024-01-10 10:00:00'
+            },
+            {
+                id: '2',
+                domain: '用户管理',
+                name: '用户查看',
+                code: 'user:view',
+                parentId: '1',
+                creator: '张三',
+                createTime: '2024-01-15 10:30:00',
+                modifier: '张三',
+                modifyTime: '2024-01-15 10:30:00'
+            },
+            {
+                id: '3',
+                domain: '用户管理',
+                name: '用户编辑',
+                code: 'user:edit',
+                parentId: '1',
+                creator: '李四',
+                createTime: '2024-01-16 14:20:00',
+                modifier: '王五',
+                modifyTime: '2024-01-20 09:15:00'
+            },
+            {
+                id: '4',
+                domain: '用户管理',
+                name: '用户删除',
+                code: 'user:delete',
+                parentId: '1',
+                creator: '李四',
+                createTime: '2024-01-17 09:00:00',
+                modifier: '李四',
+                modifyTime: '2024-01-17 09:00:00'
+            },
+            {
+                id: '5',
+                domain: '用户管理',
+                name: '用户列表',
+                code: 'user:list',
+                parentId: '2',
+                creator: '张三',
+                createTime: '2024-01-18 10:00:00',
+                modifier: '张三',
+                modifyTime: '2024-01-18 10:00:00'
+            },
+            {
+                id: '6',
+                domain: '用户管理',
+                name: '用户详情',
+                code: 'user:detail',
+                parentId: '2',
+                creator: '张三',
+                createTime: '2024-01-19 10:00:00',
+                modifier: '张三',
+                modifyTime: '2024-01-19 10:00:00'
+            },
+            {
+                id: '7',
+                domain: '用户管理',
+                name: '用户新增',
+                code: 'user:create',
+                parentId: '3',
+                creator: '李四',
+                createTime: '2024-01-20 10:00:00',
+                modifier: '李四',
+                modifyTime: '2024-01-20 10:00:00'
+            },
+            {
+                id: '8',
+                domain: '用户管理',
+                name: '用户更新',
+                code: 'user:update',
+                parentId: '3',
+                creator: '李四',
+                createTime: '2024-01-21 10:00:00',
+                modifier: '李四',
+                modifyTime: '2024-01-21 10:00:00'
+            },
+            {
+                id: '9',
+                domain: '角色管理',
+                name: '角色查看',
+                code: 'role:view',
+                creator: '张三',
+                createTime: '2024-01-17 11:00:00',
+                modifier: '张三',
+                modifyTime: '2024-01-17 11:00:00'
+            },
+            {
+                id: '10',
+                domain: '角色管理',
+                name: '角色编辑',
+                code: 'role:edit',
+                creator: '李四',
+                createTime: '2024-01-18 15:45:00',
+                modifier: '李四',
+                modifyTime: '2024-01-18 15:45:00'
+            },
+            {
+                id: '11',
+                domain: '权限管理',
+                name: '权限查看',
+                code: 'permission:view',
+                creator: '王五',
+                createTime: '2024-01-19 09:30:00',
+                modifier: '王五',
+                modifyTime: '2024-01-19 09:30:00'
+            },
+            {
+                id: '12',
+                domain: '权限管理',
+                name: '权限编辑',
+                code: 'permission:edit',
+                creator: '张三',
+                createTime: '2024-01-20 16:20:00',
+                modifier: '李四',
+                modifyTime: '2024-01-21 10:10:00'
+            },
+            {
+                id: '13',
+                domain: '用户管理',
+                name: '用户配置',
+                code: 'user:config',
+                creator: '张三',
+                createTime: '2024-01-22 10:00:00',
+                modifier: '张三',
+                modifyTime: '2024-01-22 10:00:00'
+            },
+            {
+                id: '14',
+                domain: '用户管理',
+                name: '用户统计',
+                code: 'user:statistics',
+                creator: '李四',
+                createTime: '2024-01-23 14:30:00',
+                modifier: '李四',
+                modifyTime: '2024-01-23 14:30:00'
+            }
+        ];
+
+        // 从权限数据中提取所有唯一的域值
+        function getAllPermissionDomains() {
+            return [...new Set(allPermissions.map(p => p.domain))].sort();
+        }
+
+        // 初始化域下拉框选项
+        function initDomainOptions() {
+            const domains = getAllPermissionDomains();
+            const searchSelect = document.getElementById('searchRoleDomain');
+            const createSelect = document.getElementById('createRoleDomain');
+            const editSelect = document.getElementById('editRoleDomain');
+
+            if (searchSelect) {
+                domains.forEach(domain => {
+                    const option = document.createElement('option');
+                    option.value = domain;
+                    option.textContent = domain;
+                    searchSelect.appendChild(option);
+                });
+            }
+
+            if (createSelect) {
+                domains.forEach(domain => {
+                    const option = document.createElement('option');
+                    option.value = domain;
+                    option.textContent = domain;
+                    createSelect.appendChild(option);
+                });
+            }
+
+            if (editSelect) {
+                domains.forEach(domain => {
+                    const option = document.createElement('option');
+                    option.value = domain;
+                    option.textContent = domain;
+                    editSelect.appendChild(option);
+                });
+            }
+        }
+
+        let filteredRoles = [...allRoles];
+
+        function renderTable(roles) {
+            const tbody = document.getElementById('tableBody');
+            const emptyState = document.getElementById('emptyState');
+
+            if (roles.length === 0) {
+                tbody.innerHTML = '';
+                emptyState.style.display = 'block';
+                return;
+            }
+
+            emptyState.style.display = 'none';
+
+            tbody.innerHTML = roles.map(role => `
+                <tr>
+                    <td>${role.id}</td>
+                    <td>${role.domain}</td>
+                    <td>${role.name}</td>
+                    <td>${role.code}</td>
+                    <td>
+                        <div class="operation-info">
+                            <span>创建人：${role.createdBy || '-'}</span>
+                            <span>创建时间：${role.createdAt || '-'}</span>
+                            <span>修改人：${role.updatedBy || '-'}</span>
+                            <span>修改时间：${role.updatedAt || '-'}</span>
+                        </div>
+                    </td>
+                    <td>
+                        <button type="button" class="btn-link btn-edit" onclick="handleEdit(${role.id})">修改</button>
+                        <button type="button" class="btn-link btn-delete" onclick="handleDelete(${role.id})">删除</button>
+                </tr>
+            `).join('');
+        }
+
+        function handleSearch() {
+            const roleId = document.getElementById('searchRoleId').value.trim();
+            const roleDomain = document.getElementById('searchRoleDomain').value;
+            const roleName = document.getElementById('searchRoleName').value.trim();
+            const roleCode = document.getElementById('searchRoleCode').value.trim();
+
+            filteredRoles = allRoles.filter(role => {
+                const matchId = !roleId || String(role.id).includes(roleId);
+                const matchDomain = !roleDomain || role.domain === roleDomain;
+                const matchName = !roleName || role.name.includes(roleName);
+                const matchCode = !roleCode || role.code.includes(roleCode);
+                return matchId && matchDomain && matchName && matchCode;
+            });
+
+            renderTable(filteredRoles);
+        }
+
+        function handleReset() {
+            document.getElementById('searchRoleId').value = '';
+            document.getElementById('searchRoleDomain').value = '';
+            document.getElementById('searchRoleName').value = '';
+            document.getElementById('searchRoleCode').value = '';
+
+            filteredRoles = [...allRoles];
+            renderTable(filteredRoles);
+        }
+
+        let currentEditRoleId = null;
+
+        function handleEdit(roleId) {
+            const roleIdNum = typeof roleId === 'string' ? parseInt(roleId, 10) : roleId;
+            const role = allRoles.find(r => r.id === roleIdNum);
+            if (!role) {
+                alert('角色不存在');
+                return;
+            }
+
+            currentEditRoleId = roleIdNum;
+
+            // 回填表单数据
+            document.getElementById('editRoleDomain').value = role.domain;
+            document.getElementById('editRoleName').value = role.name;
+            document.getElementById('editRoleCode').value = role.code;
+
+            // 渲染权限树并选中已有权限
+            const selectedPermissionIds = role.permissions || [];
+            renderEditPermissionTree(role.domain, selectedPermissionIds);
+
+            // 显示弹窗
+            const modal = document.getElementById('editRoleModal');
+            modal.classList.add('show');
+        }
+
+        function closeEditModal() {
+            const modal = document.getElementById('editRoleModal');
+            modal.classList.remove('show');
+            document.getElementById('editRoleForm').reset();
+            document.getElementById('editPermissionTree').innerHTML = '<div style="padding: 12px; text-align: center; color: #999;">加载中...</div>';
+            currentEditRoleId = null;
+        }
+
+        function handleSubmitEdit(event) {
+            event.preventDefault();
+
+            if (!currentEditRoleId) {
+                alert('编辑角色ID不存在');
+                return;
+            }
+
+            const role = allRoles.find(r => r.id === currentEditRoleId);
+            if (!role) {
+                alert('角色不存在');
+                return;
+            }
+
+            const name = document.getElementById('editRoleName').value.trim();
+            const code = document.getElementById('editRoleCode').value.trim();
+            const permissionIds = getSelectedPermissionIds('editPermissionTree');
+
+            if (!name || !code) {
+                alert('请完整填写角色信息');
+                return;
+            }
+
+            if (permissionIds.length === 0) {
+                alert('请至少选择一个权限');
+                return;
+            }
+
+            // 更新角色信息
+            role.name = name;
+            role.code = code;
+            role.permissions = permissionIds;
+            role.updatedBy = '系统';
+            role.updatedAt = new Date().toISOString().replace('T', ' ').slice(0, 16);
+
+            // 更新过滤列表
+            const index = filteredRoles.findIndex(r => r.id === currentEditRoleId);
+            if (index !== -1) {
+                filteredRoles[index] = { ...role };
+            }
+
+            renderTable(filteredRoles);
+            closeEditModal();
+            alert('角色修改成功');
+        }
+
+        function renderEditPermissionTree(domain, selectedIds = []) {
+            const treeContainer = document.getElementById('editPermissionTree');
+            
+            if (!domain) {
+                treeContainer.innerHTML = '<div style="padding: 12px; text-align: center; color: #999;">请先选择角色域</div>';
+                return;
+            }
+
+            const tree = buildPermissionTree(domain);
+
+            if (tree.length === 0) {
+                treeContainer.innerHTML = '<div style="padding: 20px; text-align: center; color: #999;">该域下暂无权限数据</div>';
+                return;
+            }
+
+            treeContainer.innerHTML = '';
+            tree.forEach(rootNode => {
+                treeContainer.appendChild(renderMultiSelectTreeNode(rootNode, 0, 'editPermissionTree', selectedIds));
+            });
+            
+            // 更新选中样式
+            updateNodeSelection('editPermissionTree');
+        }
+
+        function handleDelete(roleId) {
+            const roleIdNum = typeof roleId === 'string' ? parseInt(roleId, 10) : roleId;
+            // 逻辑预留
+            console.log('delete role', roleIdNum);
+        }
+
+        function handleExport() {
+            // 逻辑预留
+            alert('导出功能开发中');
+        }
+
+        function handleCreate() {
+            document.getElementById('createRoleForm').reset();
+            const treeContainer = document.getElementById('createPermissionTree');
+            treeContainer.innerHTML = '<div style="padding: 12px; text-align: center; color: #999;">请先选择角色域</div>';
+            const modal = document.getElementById('createRoleModal');
+            modal.classList.add('show');
+        }
+
+        function closeCreateModal() {
+            const modal = document.getElementById('createRoleModal');
+            modal.classList.remove('show');
+            document.getElementById('createRoleForm').reset();
+            document.getElementById('createPermissionTree').innerHTML = '<div style="padding: 12px; text-align: center; color: #999;">请先选择角色域</div>';
+        }
+
+        function handleSubmitCreate(event) {
+            event.preventDefault();
+
+            const domain = document.getElementById('createRoleDomain').value;
+            const name = document.getElementById('createRoleName').value.trim();
+            const code = document.getElementById('createRoleCode').value.trim();
+            const permissionIds = getSelectedPermissionIds('createPermissionTree');
+
+            if (!domain || !name || !code) {
+                alert('请完整填写角色信息');
+                return;
+            }
+
+            if (permissionIds.length === 0) {
+                alert('请至少选择一个权限');
+                return;
+            }
+
+            const now = new Date().toISOString().replace('T', ' ').slice(0, 16);
+            const newRole = {
+                id: generateRoleId(),
+                domain,
+                name,
+                code,
+                createdBy: '系统',
+                createdAt: now,
+                updatedBy: '系统',
+                updatedAt: now,
+                permissions: permissionIds
+            };
+
+            allRoles.unshift(newRole);
+            filteredRoles = [...allRoles];
+            renderTable(filteredRoles);
+            closeCreateModal();
+            alert('角色创建成功');
+        }
+
+        function generateRoleId() {
+            const numericIds = allRoles
+                .map(role => typeof role.id === 'number' ? role.id : parseInt(String(role.id).replace(/[^\d]/g, ''), 10))
+                .filter(num => !isNaN(num));
+            const nextId = (numericIds.length ? Math.max(...numericIds) : 1000) + 1;
+            return nextId;
+        }
+
+        function renderCreatePermissionTree(domain, selectedIds = []) {
+            const treeContainer = document.getElementById('createPermissionTree');
+            
+            if (!domain) {
+                treeContainer.innerHTML = '<div style="padding: 12px; text-align: center; color: #999;">请先选择角色域</div>';
+                return;
+            }
+
+            const tree = buildPermissionTree(domain);
+
+            if (tree.length === 0) {
+                treeContainer.innerHTML = '<div style="padding: 20px; text-align: center; color: #999;">该域下暂无权限数据</div>';
+                return;
+            }
+
+            treeContainer.innerHTML = '';
+            tree.forEach(rootNode => {
+                treeContainer.appendChild(renderMultiSelectTreeNode(rootNode, 0, 'createPermissionTree', selectedIds));
+            });
+            
+            // 更新选中样式
+            updateNodeSelection('createPermissionTree');
+        }
+
+        function buildPermissionTree(domain = null) {
+            let permissions = domain
+                ? allPermissions.filter(p => p.domain === domain)
+                : allPermissions;
+
+            if (!permissions.length) {
+                return [];
+            }
+
+            const permissionMap = {};
+            permissions.forEach(p => {
+                permissionMap[p.id] = { ...p, children: [] };
+            });
+
+            const roots = [];
+            permissions.forEach(p => {
+                const node = permissionMap[p.id];
+                if (p.parentId && permissionMap[p.parentId]) {
+                    permissionMap[p.parentId].children.push(node);
+                } else {
+                    roots.push(node);
+                }
+            });
+
+            return roots;
+        }
+
+        function renderMultiSelectTreeNode(node, level = 0, containerId, selectedIds = []) {
+            const hasChildren = node.children && node.children.length > 0;
+            const nodeDiv = document.createElement('div');
+            nodeDiv.className = 'tree-node' + (hasChildren ? '' : ' leaf');
+            nodeDiv.dataset.nodeId = node.id;
+
+            const isChecked = selectedIds.includes(node.id);
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'tree-node-content' + (isChecked ? ' selected' : '');
+            
+            // 点击节点内容切换选中状态
+            contentDiv.onclick = function(e) {
+                if (e.target.type !== 'checkbox' && e.target.className !== 'tree-toggle') {
+                    const checkbox = contentDiv.querySelector('input[type="checkbox"]');
+                    if (checkbox) {
+                        checkbox.checked = !checkbox.checked;
+                        handlePermissionCheckboxChange(node.id, checkbox.checked, containerId);
+                    }
+                }
+            };
+
+            const toggleSpan = document.createElement('span');
+            toggleSpan.className = 'tree-toggle';
+            if (hasChildren) {
+                toggleSpan.textContent = '▶';
+                toggleSpan.onclick = function (e) {
+                    e.stopPropagation();
+                    toggleTreeNode(nodeDiv);
+                };
+            }
+
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.className = 'tree-checkbox';
+            checkbox.value = node.id;
+            checkbox.checked = isChecked;
+            checkbox.onclick = function (e) {
+                e.stopPropagation();
+                handlePermissionCheckboxChange(node.id, checkbox.checked, containerId);
+            };
+
+            const label = document.createElement('span');
+            label.className = 'tree-label';
+            label.textContent = `${node.name} (${node.code})`;
+
+            contentDiv.appendChild(toggleSpan);
+            contentDiv.appendChild(checkbox);
+            contentDiv.appendChild(label);
+            nodeDiv.appendChild(contentDiv);
+
+            if (hasChildren) {
+                const childrenDiv = document.createElement('div');
+                childrenDiv.className = 'tree-children';
+                node.children.forEach(child => {
+                    childrenDiv.appendChild(renderMultiSelectTreeNode(child, level + 1, containerId, selectedIds));
+                });
+                nodeDiv.appendChild(childrenDiv);
+            }
+
+            return nodeDiv;
+        }
+
+        function toggleTreeNode(nodeDiv) {
+            const children = nodeDiv.querySelector('.tree-children');
+            const toggle = nodeDiv.querySelector('.tree-toggle');
+            if (children) {
+                children.classList.toggle('expanded');
+                toggle.textContent = children.classList.contains('expanded') ? '▼' : '▶';
+            }
+        }
+        
+        // 更新节点选中样式
+        function updateNodeSelection(containerId) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            
+            const checkboxes = container.querySelectorAll('input[type="checkbox"]');
+            checkboxes.forEach(checkbox => {
+                const nodeDiv = checkbox.closest('.tree-node');
+                const contentDiv = checkbox.closest('.tree-node-content');
+                if (nodeDiv && contentDiv) {
+                    if (checkbox.checked) {
+                        contentDiv.classList.add('selected');
+                    } else {
+                        contentDiv.classList.remove('selected');
+                    }
+                }
+            });
+        }
+
+        function handlePermissionCheckboxChange(permissionId, checked, containerId) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+
+            if (checked) {
+                const parentIds = getAllParentIds(permissionId);
+                parentIds.forEach(parentId => {
+                    const parentCheckbox = container.querySelector(`input[type="checkbox"][value="${parentId}"]`);
+                    if (parentCheckbox && !parentCheckbox.checked) {
+                        parentCheckbox.checked = true;
+                    }
+                });
+            } else {
+                const descendantIds = getAllDescendantIdsFromList(permissionId);
+                descendantIds.forEach(descendantId => {
+                    const childCheckbox = container.querySelector(`input[type="checkbox"][value="${descendantId}"]`);
+                    if (childCheckbox && childCheckbox.checked) {
+                        childCheckbox.checked = false;
+                    }
+                });
+            }
+            
+            // 更新选中样式
+            updateNodeSelection(containerId);
+        }
+
+        function getAllParentIds(permissionId) {
+            const ids = [];
+            let current = allPermissions.find(p => p.id === permissionId);
+            while (current && current.parentId) {
+                ids.push(current.parentId);
+                current = allPermissions.find(p => p.id === current.parentId);
+            }
+            return ids;
+        }
+
+        function getAllDescendantIds(node) {
+            const ids = [];
+            if (node.children && node.children.length > 0) {
+                node.children.forEach(child => {
+                    ids.push(child.id);
+                    ids.push(...getAllDescendantIds(child));
+                });
+            }
+            return ids;
+        }
+
+        function getAllDescendantIdsFromList(permissionId) {
+            const permission = allPermissions.find(p => p.id === permissionId);
+            if (!permission) return [];
+
+            const permissionMap = {};
+            allPermissions.forEach(p => {
+                permissionMap[p.id] = { ...p, children: [] };
+            });
+
+            allPermissions.forEach(p => {
+                if (p.parentId && permissionMap[p.parentId]) {
+                    permissionMap[p.parentId].children.push(permissionMap[p.id]);
+                }
+            });
+
+            const node = permissionMap[permissionId];
+            if (!node) return [];
+
+            return getAllDescendantIds(node);
+        }
+
+        function getSelectedPermissionIds(containerId) {
+            const container = document.getElementById(containerId);
+            if (!container) return [];
+            const checkboxes = container.querySelectorAll('input[type="checkbox"]:checked');
+            return Array.from(checkboxes).map(cb => cb.value);
+        }
+
+        // 监听创建角色弹窗中的角色域变化
+        document.getElementById('createRoleDomain').addEventListener('change', function() {
+            const domain = this.value;
+            renderCreatePermissionTree(domain);
+        });
+
+        document.getElementById('searchForm').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                handleSearch();
+            }
+        });
+
+        // 初始化域选项
+        initDomainOptions();
+        renderTable(filteredRoles);
+    </script>
+</body>
+</html>
